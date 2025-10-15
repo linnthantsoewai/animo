@@ -1,4 +1,4 @@
-package com.example.animo.ui.screens
+package com.ltsw.animo.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,19 +29,15 @@ fun DashboardScreen() {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        item { Header("Good morning, Alex", "For Max 🐾") }
+        item { NextAppointmentCard() }
         item {
-            Header("Good morning, Alex", "For Max 🐾")
-        }
-        item {
-            NextAppointmentCard()
-        }
-        item {
-            Text("Today's Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text("Today's Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(8.dp))
             SummaryGrid()
         }
         item {
-            Text("Quick Log", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text("Quick Log", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(8.dp))
             QuickLogButtons()
         }
@@ -49,15 +45,15 @@ fun DashboardScreen() {
 }
 
 @Composable
-fun Header(subtitle: String, title: String) {
+private fun Header(subtitle: String, title: String) {
     Column {
         Text(subtitle, color = Color.Gray)
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 32.sp)
+        Text(title, fontWeight = FontWeight.Bold, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
     }
 }
 
 @Composable
-fun NextAppointmentCard() {
+private fun NextAppointmentCard() {
     Card(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -81,30 +77,18 @@ fun NextAppointmentCard() {
 }
 
 @Composable
-fun SummaryGrid() {
+private fun SummaryGrid() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        SummaryCard(
-            icon = Icons.Outlined.Pets,
-            label = "Walks",
-            value = "1",
-            color = Color.Green,
-            modifier = Modifier.weight(1f)
-        )
-        SummaryCard(
-            icon = Icons.Outlined.Restaurant,
-            label = "Meals",
-            value = "2 / 2",
-            color = Color(0xFFFFA500),
-            modifier = Modifier.weight(1f)
-        )
+        SummaryCard(icon = Icons.Outlined.Pets, label = "Walks", value = "1", color = Color.Green, modifier = Modifier.weight(1f))
+        SummaryCard(icon = Icons.Outlined.Restaurant, label = "Meals", value = "2 / 2", color = Color(0xFFFFA500), modifier = Modifier.weight(1f))
     }
 }
 
 @Composable
-fun SummaryCard(icon: ImageVector, label: String, value: String, color: Color, modifier: Modifier = Modifier) {
+private fun SummaryCard(icon: ImageVector, label: String, value: String, color: Color, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(20.dp),
@@ -113,14 +97,14 @@ fun SummaryCard(icon: ImageVector, label: String, value: String, color: Color, m
         Column(modifier = Modifier.padding(16.dp)) {
             Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(24.dp))
             Spacer(modifier = Modifier.height(8.dp))
-            Text(value, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text(value, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = MaterialTheme.colorScheme.onBackground)
             Text(label, color = Color.Gray)
         }
     }
 }
 
 @Composable
-fun QuickLogButtons() {
+private fun QuickLogButtons() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -132,7 +116,7 @@ fun QuickLogButtons() {
 }
 
 @Composable
-fun QuickLogButton(label: String, icon: ImageVector, color: Color, modifier: Modifier = Modifier) {
+private fun QuickLogButton(label: String, icon: ImageVector, color: Color, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
@@ -143,6 +127,6 @@ fun QuickLogButton(label: String, icon: ImageVector, color: Color, modifier: Mod
     ) {
         Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(32.dp))
         Spacer(modifier = Modifier.height(8.dp))
-        Text(label, fontWeight = FontWeight.Medium)
+        Text(label, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onBackground)
     }
 }

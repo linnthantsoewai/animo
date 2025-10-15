@@ -1,26 +1,42 @@
-package com.example.animo.ui.theme
+package com.ltsw.animo.ui.theme
 
+import android.app.Activity
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-// Defines the color palette for the app in light mode.
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF2563EB),      // A strong blue for primary actions
-    background = Color.White,         // Standard white background
-    surface = Color(0xFFF0F2F5),      // A light grey for card backgrounds and surfaces
-    onBackground = Color(0xFF1A202C),  // Dark text color for readability
-    onSurface = Color(0xFF1A202C)      // Dark text color for readability
+    primary = Color(0xFF2563EB),
+    background = Color.White,
+    surface = Color(0xFFF0F2F5),
+    onBackground = Color(0xFF1A202C),
+    onSurface = Color(0xFF1A202C)
 )
 
-// The main theme composable for the Animo app.
 @Composable
-fun AnimoTheme(content: @Composable () -> Unit) {
+fun AnimoTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    val colorScheme = LightColorScheme
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = colorScheme.background.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+        }
+    }
     MaterialTheme(
-        colorScheme = LightColorScheme,
-        typography = Typography(), // Using default typography for now
+        colorScheme = colorScheme,
+        typography = Typography(),
         content = content
     )
 }

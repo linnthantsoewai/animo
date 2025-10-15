@@ -1,4 +1,4 @@
-package com.example.animo.data.model
+package com.ltsw.animo.data.model
 
 import java.time.LocalDateTime
 

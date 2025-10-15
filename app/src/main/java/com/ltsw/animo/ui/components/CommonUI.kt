@@ -1,4 +1,4 @@
-package com.example.animo.ui.components
+package com.ltsw.animo.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

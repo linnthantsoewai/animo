@@ -1,14 +1,11 @@
-package com.example.animo.ui.screens
+package com.ltsw.animo.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.animo.data.SampleData
+import com.ltsw.animo.data.SampleData
 
 @Composable
 fun ProfileScreen() {
@@ -41,7 +38,7 @@ fun ProfileScreen() {
             Text(pet.name.first().toString(), fontSize = 48.sp, color = Color.White, fontWeight = FontWeight.Bold)
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Text(pet.name, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+        Text(pet.name, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = MaterialTheme.colorScheme.onBackground)
         Text(pet.breed, color = Color.Gray)
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -62,7 +59,8 @@ fun ProfileScreen() {
             "Medical History",
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(8.dp))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -74,22 +72,22 @@ fun ProfileScreen() {
 }
 
 @Composable
-fun ProfileStat(label: String, value: String) {
+private fun ProfileStat(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text(value, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onBackground)
         Text(label, color = Color.Gray, fontSize = 14.sp)
     }
 }
 
 @Composable
-fun MedicalHistoryItem(title: String, subtitle: String) {
+private fun MedicalHistoryItem(title: String, subtitle: String) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(title, fontWeight = FontWeight.SemiBold)
+            Text(title, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
             Text(subtitle, color = Color.Gray, fontSize = 14.sp)
         }
     }

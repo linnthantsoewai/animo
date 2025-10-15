@@ -1,4 +1,4 @@
-package com.example.animo.ui.screens
+package com.ltsw.animo.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,10 +19,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.animo.data.SampleData
-import com.example.animo.data.model.Activity
-import com.example.animo.data.model.ActivityType
-import com.example.animo.ui.components.TopHeader
+import com.ltsw.animo.data.SampleData
+import com.ltsw.animo.data.model.Activity
+import com.ltsw.animo.data.model.ActivityType
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -41,9 +40,9 @@ fun ScheduleScreen() {
                     Text(
                         date.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")),
                         fontWeight = FontWeight.Bold,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
                 items(activitiesOnDate) { activity ->
                     ActivityCard(activity)
@@ -54,7 +53,19 @@ fun ScheduleScreen() {
 }
 
 @Composable
-fun ActivityCard(activity: Activity) {
+private fun TopHeader(title: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
+    ) {
+        Text(title, fontWeight = FontWeight.Bold, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+    }
+}
+
+@Composable
+private fun ActivityCard(activity: Activity) {
     val activityInfo = activity.type.getInfo()
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -76,7 +87,7 @@ fun ActivityCard(activity: Activity) {
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(activity.title, fontWeight = FontWeight.SemiBold)
+                Text(activity.title, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onBackground)
                 Text(
                     activity.dateTime.format(DateTimeFormatter.ofPattern("h:mm a")),
                     color = Color.Gray,
@@ -84,17 +95,15 @@ fun ActivityCard(activity: Activity) {
                 )
             }
             IconButton(onClick = { /* TODO: Edit/Delete */ }) {
-                Icon(Icons.Filled.MoreVert, contentDescription = "Options")
+                Icon(Icons.Filled.MoreVert, contentDescription = "Options", tint = Color.Gray)
             }
         }
     }
 }
 
+private data class ActivityInfo(val icon: ImageVector, val color: Color)
 
-// Helper data class and extension function for styling activity types
-data class ActivityInfo(val icon: ImageVector, val color: Color)
-
-fun ActivityType.getInfo(): ActivityInfo {
+private fun ActivityType.getInfo(): ActivityInfo {
     return when (this) {
         ActivityType.WALK -> ActivityInfo(Icons.Outlined.Pets, Color.Green)
         ActivityType.MEAL -> ActivityInfo(Icons.Outlined.Restaurant, Color(0xFFFFA500))

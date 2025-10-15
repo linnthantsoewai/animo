@@ -1,4 +1,4 @@
-package com.example.animo.ui.screens
+package com.ltsw.animo.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,9 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.animo.data.SampleData
-import com.example.animo.data.model.Pet
-import com.example.animo.ui.components.*
+import com.ltsw.animo.data.SampleData
+import com.ltsw.animo.data.model.Pet
+import com.ltsw.animo.ui.components.*
 
 @Composable
 fun SettingsScreen() {
