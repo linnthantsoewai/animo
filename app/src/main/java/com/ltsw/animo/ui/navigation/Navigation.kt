@@ -1,7 +1,9 @@
 package com.ltsw.animo.ui.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -10,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -36,7 +39,7 @@ import java.time.format.DateTimeFormatter
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
     object Dashboard : Screen("dashboard", "Home", Icons.Filled.Home)
     object Schedule : Screen("schedule", "Schedule", Icons.Filled.CalendarToday)
-    object Add : Screen("add", "Add", Icons.Filled.AddCircle)
+    object Add : Screen("add", "Add", Icons.Filled.Add) // Using a simple Add icon
     object Profile : Screen("profile", "Profile", Icons.Filled.Pets)
     object Settings : Screen("settings", "Settings", Icons.Filled.Settings)
 }
@@ -96,29 +99,55 @@ fun BottomNavigationBar(navController: NavController, onAddClick: () -> Unit) {
         val currentRoute = navBackStackEntry?.destination?.route
 
         items.forEach { screen ->
-            NavigationBarItem(
-                icon = { Icon(screen.icon, contentDescription = screen.title) },
-                label = { Text(screen.title) },
-                selected = currentRoute == screen.route && screen.route != "add",
-                onClick = {
-                    if (screen.route != "add") {
+            // Special case for the "Add" button to give it a unique style
+            if (screen.route == "add") {
+                // This item is just a clickable, styled icon
+                NavigationBarItem(
+                    selected = false, // The add button is never "selected"
+                    onClick = onAddClick,
+                    icon = {
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = screen.icon,
+                                contentDescription = screen.title,
+                                tint = Color.White
+                            )
+                        }
+                    },
+                    // We can provide an empty label or a styled one if desired
+                    label = { Text(screen.title, color = Color.Gray) },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = MaterialTheme.colorScheme.background
+                    )
+                )
+            } else {
+                // Standard items for navigation
+                NavigationBarItem(
+                    icon = { Icon(screen.icon, contentDescription = screen.title) },
+                    label = { Text(screen.title) },
+                    selected = currentRoute == screen.route,
+                    onClick = {
                         navController.navigate(screen.route) {
                             popUpTo(navController.graph.startDestinationId) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
-                    } else {
-                        onAddClick()
-                    }
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = Color.Gray,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedTextColor = Color.Gray,
-                    indicatorColor = MaterialTheme.colorScheme.background
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = Color.Gray,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedTextColor = Color.Gray,
+                        indicatorColor = MaterialTheme.colorScheme.background
+                    )
                 )
-            )
+            }
         }
     }
 }
@@ -198,7 +227,6 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
                             trailingIcon = { Icon(Icons.Default.CalendarToday, "Date Picker")},
                             modifier = Modifier.fillMaxWidth()
                         )
-                        // This invisible box covers the whole area to reliably capture clicks
                         Box(modifier = Modifier.matchParentSize().clickable { showDatePicker = true })
                     }
                     Box(modifier = Modifier.weight(1f)) {
