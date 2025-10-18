@@ -13,6 +13,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -92,6 +93,7 @@ fun BottomNavigationBar(navController: NavController, onAddClick: () -> Unit) {
     )
 
     NavigationBar(
+        modifier = Modifier.height(120.dp), // Setting a fixed height for the bar
         containerColor = MaterialTheme.colorScheme.background,
         tonalElevation = 8.dp
     ) {
@@ -108,7 +110,9 @@ fun BottomNavigationBar(navController: NavController, onAddClick: () -> Unit) {
                     icon = {
                         Box(
                             modifier = Modifier
-                                .size(48.dp)
+                                // Add a shadow modifier here
+                                .shadow(elevation = 4.dp, shape = CircleShape)
+                                .size(56.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primary),
                             contentAlignment = Alignment.Center
@@ -120,7 +124,6 @@ fun BottomNavigationBar(navController: NavController, onAddClick: () -> Unit) {
                             )
                         }
                     },
-                    // We can provide an empty label or a styled one if desired
                     label = { Text(screen.title, color = Color.Gray) },
                     colors = NavigationBarItemDefaults.colors(
                         indicatorColor = MaterialTheme.colorScheme.background
