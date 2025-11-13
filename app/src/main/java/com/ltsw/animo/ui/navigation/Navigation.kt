@@ -1,9 +1,9 @@
 package com.ltsw.animo.ui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,24 +12,28 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.ltsw.animo.data.SampleData
+import com.ltsw.animo.AnimoApplication
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
 import com.ltsw.animo.ui.screens.DashboardScreen
 import com.ltsw.animo.ui.screens.ProfileScreen
 import com.ltsw.animo.ui.screens.ScheduleScreen
 import com.ltsw.animo.ui.screens.SettingsScreen
+import com.ltsw.animo.ui.viewmodel.ActivityViewModel
+import com.ltsw.animo.ui.viewmodel.ActivityViewModelFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -37,17 +41,24 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+// --- Screen Definitions ---
 sealed class Screen(val route: String, val title: String, val icon: ImageVector) {
     object Dashboard : Screen("dashboard", "Home", Icons.Filled.Home)
-    object Schedule : Screen("schedule", "Schedule", Icons.Filled.CalendarToday)
-    object Add : Screen("add", "Add", Icons.Filled.Add) // Using a simple Add icon
-    object Profile : Screen("profile", "Profile", Icons.Filled.Pets)
+    object Schedule : Screen("schedule", "Schedule", Icons.Filled.DateRange)
+    object Profile : Screen("profile", "Profile", Icons.Filled.Star)
     object Settings : Screen("settings", "Settings", Icons.Filled.Settings)
 }
 
+// --- Main App Composable ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimoApp() {
+    val context = LocalContext.current
+    val application = context.applicationContext as AnimoApplication
+    val viewModel: ActivityViewModel = viewModel(
+        factory = ActivityViewModelFactory(application.repository)
+    )
+
     val navController = rememberNavController()
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -64,8 +75,8 @@ fun AnimoApp() {
             startDestination = Screen.Dashboard.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Dashboard.route) { DashboardScreen() }
-            composable(Screen.Schedule.route) { ScheduleScreen() }
+            composable(Screen.Dashboard.route) { DashboardScreen(viewModel) }
+            composable(Screen.Schedule.route) { ScheduleScreen(viewModel) }
             composable(Screen.Profile.route) { ProfileScreen() }
             composable(Screen.Settings.route) { SettingsScreen() }
         }
@@ -75,7 +86,7 @@ fun AnimoApp() {
         AddActivityDialog(
             onDismiss = { showDialog = false },
             onSave = { newActivity ->
-                SampleData.activities.add(newActivity)
+                viewModel.insert(newActivity)
                 showDialog = false
             }
         )
@@ -87,74 +98,100 @@ fun BottomNavigationBar(navController: NavController, onAddClick: () -> Unit) {
     val items = listOf(
         Screen.Dashboard,
         Screen.Schedule,
-        Screen.Add,
         Screen.Profile,
         Screen.Settings
     )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar(
-        modifier = Modifier.height(120.dp), // Setting a fixed height for the bar
-        containerColor = MaterialTheme.colorScheme.background,
-        tonalElevation = 8.dp
+        containerColor = MaterialTheme.colorScheme.surface
     ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
+        // First two items
+        items.take(2).forEach { screen ->
+            NavigationBarItem(
+                icon = { Icon(screen.icon, contentDescription = screen.title) },
+                label = { Text(screen.title) },
+                selected = currentRoute == screen.route,
+                onClick = {
+                    navController.navigate(screen.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = Color.Gray,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedTextColor = Color.Gray
+                )
+            )
+        }
 
-        items.forEach { screen ->
-            // Special case for the "Add" button to give it a unique style
-            if (screen.route == "add") {
-                // This item is just a clickable, styled icon
-                NavigationBarItem(
-                    selected = false, // The add button is never "selected"
-                    onClick = onAddClick,
-                    icon = {
-                        Box(
-                            modifier = Modifier
-                                // Add a shadow modifier here
-                                .shadow(elevation = 4.dp, shape = CircleShape)
-                                .size(56.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = screen.icon,
-                                contentDescription = screen.title,
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    label = { Text(screen.title, color = Color.Gray) },
-                    colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = MaterialTheme.colorScheme.background
+        // Center Add Button with blue background
+        NavigationBarItem(
+            icon = {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .shadow(
+                            elevation = 6.dp,
+                            shape = RoundedCornerShape(12.dp),
+                            clip = false
+                        )
+                        .background(
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = "Add Activity",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
                     )
+                }
+            },
+            label = { Text("Add") },
+            selected = false,
+            onClick = onAddClick,
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = MaterialTheme.colorScheme.primary,
+                unselectedIconColor = MaterialTheme.colorScheme.primary,
+                selectedTextColor = MaterialTheme.colorScheme.primary,
+                unselectedTextColor = MaterialTheme.colorScheme.primary,
+                indicatorColor = Color.Transparent
+            )
+        )
+
+        // Last two items
+        items.takeLast(2).forEach { screen ->
+            NavigationBarItem(
+                icon = { Icon(screen.icon, contentDescription = screen.title) },
+                label = { Text(screen.title) },
+                selected = currentRoute == screen.route,
+                onClick = {
+                    navController.navigate(screen.route) {
+                        popUpTo(navController.graph.startDestinationId) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    unselectedIconColor = Color.Gray,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    unselectedTextColor = Color.Gray
                 )
-            } else {
-                // Standard items for navigation
-                NavigationBarItem(
-                    icon = { Icon(screen.icon, contentDescription = screen.title) },
-                    label = { Text(screen.title) },
-                    selected = currentRoute == screen.route,
-                    onClick = {
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = Color.Gray,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedTextColor = Color.Gray,
-                        indicatorColor = MaterialTheme.colorScheme.background
-                    )
-                )
-            }
+            )
         }
     }
 }
 
+
+// --- Add Activity Dialog ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit) {
@@ -199,7 +236,7 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
                         readOnly = true,
                         label = { Text("Activity Type") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded) },
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable).fillMaxWidth()
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
                     )
                     ExposedDropdownMenu(
                         expanded = isDropdownExpanded,
@@ -227,7 +264,7 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
                             onValueChange = {},
                             readOnly = true,
                             label = { Text("Date") },
-                            trailingIcon = { Icon(Icons.Default.CalendarToday, "Date Picker")},
+                            trailingIcon = { Icon(Icons.Default.DateRange, "Date Picker")},
                             modifier = Modifier.fillMaxWidth()
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { showDatePicker = true })
@@ -238,7 +275,7 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
                             onValueChange = {},
                             readOnly = true,
                             label = { Text("Time") },
-                            trailingIcon = { Icon(Icons.Default.AccessTime, "Time Picker")},
+                            trailingIcon = { Icon(Icons.Filled.DateRange, "Time Picker")},
                             modifier = Modifier.fillMaxWidth()
                         )
                         Box(modifier = Modifier.matchParentSize().clickable { showTimePicker = true })
@@ -253,7 +290,7 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(onClick = {
                         val newActivity = Activity(
-                            id = System.currentTimeMillis(),
+                            id = 0,  // Let Room auto-generate the ID
                             type = activityType,
                             title = title,
                             dateTime = LocalDateTime.of(selectedDate, selectedTime)
@@ -341,4 +378,3 @@ private fun TimePickerDialog(
         }
     }
 }
-
