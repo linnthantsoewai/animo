@@ -1,5 +1,7 @@
 package com.ltsw.animo.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.time.LocalDateTime
 
 // Defines the structure for a pet
@@ -10,8 +12,10 @@ data class Pet(
 )
 
 // Defines the structure for a scheduled activity or event
+@Entity(tableName = "activities")
 data class Activity(
-    val id: Long,
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
     val type: ActivityType,
     var title: String,
     var dateTime: LocalDateTime

@@ -1,20 +1,22 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.kotlin.compose.compiler)
 }
 
 android {
-    namespace = "com.example.animo"
+    namespace = "com.ltsw.animo"
+    // --- FIX: Updated SDK to resolve warning ---
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.animo"
+        applicationId = "com.ltsw.animo"
         minSdk = 24
+        // --- FIX: Updated target SDK to resolve warning ---
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -28,27 +30,31 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        // --- This is required for Desugaring ---
         isCoreLibraryDesugaringEnabled = true
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "1.8"
     }
     buildFeatures {
         compose = true
     }
 }
 
-dependencies {
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
 
-    // Core Android KTX libraries - Essential for any modern Android app
+dependencies {
+    // Core Android libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
 
-    // Jetpack Compose - The UI Toolkit
-    // The BOM (Bill of Materials) ensures all your Compose libraries are compatible versions
+    // Jetpack Compose UI libraries
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
@@ -56,21 +62,17 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
 
-    // Jetpack Navigation - For navigating between screens
+    // Navigation
     implementation(libs.androidx.navigation.compose)
 
-    // Material3 for XML themes compatibility
-    implementation("com.google.android.material:material:1.12.0")
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
-    // Unnecessary for a pure Compose app - This was the conflicting dependency
-    // implementation(libs.androidx.appcompat) // Optional, but can be removed
-    // implementation(libs.material)          // Should be removed
+    // --- FIX: Use the version catalog alias ---
+    coreLibraryDesugaring(libs.desugarJdkLibs)
 
-    // Desugaring for older Android versions (keep this if you had it)
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-
-    // Testing libraries (no changes needed here)
+    // Testing
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }

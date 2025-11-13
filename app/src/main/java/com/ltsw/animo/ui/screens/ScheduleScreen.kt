@@ -7,10 +7,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,15 +20,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ltsw.animo.data.SampleData
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
+import com.ltsw.animo.ui.viewmodel.ActivityViewModel
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ScheduleScreen() {
-    val activities = SampleData.activities.sortedBy { it.dateTime }
-    val groupedActivities = activities.groupBy { it.dateTime.toLocalDate() }
+fun ScheduleScreen(viewModel: ActivityViewModel) {
+    val activities by viewModel.allActivities.collectAsState()
+    val sortedActivities = activities.sortedBy { it.dateTime }
+    val groupedActivities = sortedActivities.groupBy { it.dateTime.toLocalDate() }
 
     Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
         TopHeader("Schedule")
@@ -45,7 +47,10 @@ fun ScheduleScreen() {
                     )
                 }
                 items(activitiesOnDate) { activity ->
-                    ActivityCard(activity)
+                    ActivityCard(
+                        activity = activity,
+                        onDelete = { viewModel.deleteById(activity.id) }
+                    )
                 }
             }
         }
@@ -65,8 +70,10 @@ private fun TopHeader(title: String) {
 }
 
 @Composable
-private fun ActivityCard(activity: Activity) {
+private fun ActivityCard(activity: Activity, onDelete: () -> Unit) {
+    var showMenu by remember { mutableStateOf(false) }
     val activityInfo = activity.type.getInfo()
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -94,8 +101,25 @@ private fun ActivityCard(activity: Activity) {
                     fontSize = 14.sp
                 )
             }
-            IconButton(onClick = { /* TODO: Edit/Delete */ }) {
-                Icon(Icons.Filled.MoreVert, contentDescription = "Options", tint = Color.Gray)
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = "Options", tint = Color.Gray)
+                }
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            onDelete()
+                            showMenu = false
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = Color.Red)
+                        }
+                    )
+                }
             }
         }
     }
