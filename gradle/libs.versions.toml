@@ -1,14 +1,17 @@
 [versions]
 activityCompose = "1.11.0"
-composeBom = "2024.09.03"
-composeCompiler = "2.0.0"
+composeBom = "2025.11.00"
 coreKtx = "1.17.0"
 junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+androidxTestCore = "1.6.1"
+androidxTestRunner = "1.6.2"
 lifecycle = "2.9.4"
 lifecycleViewModelCompose = "2.9.4"
-navigationCompose = "2.9.5"
+navigationCompose = "2.9.6"
 ksp = "2.1.0-1.0.29"
-room = "2.8.2"
+room = "2.8.3"
 desugarJdkLibs = "2.1.5"
 
 [libraries]
@@ -24,6 +27,10 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidxTestCore" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
@@ -32,7 +39,7 @@ desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", versi
 
 
 [plugins]
-android-application = { id = "com.android.application", version = "8.13.0" }
+android-application = { id = "com.android.application", version = "8.13.1" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version = "2.1.0" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version = "2.1.0" }

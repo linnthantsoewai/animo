@@ -14,11 +14,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ltsw.animo.data.SampleData
+import com.ltsw.animo.data.model.Pet
 
 @Composable
 fun ProfileScreen() {
-    val pet = SampleData.pets.first()
+    // TODO: Replace with database-backed pet data when Pet persistence is implemented
+    val pet = Pet(1, "Max", "Golden Retriever")
     Column(
         modifier = Modifier
             .fillMaxSize()

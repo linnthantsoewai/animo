@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.ltsw.animo.data.SampleData
+import com.ltsw.animo.data.model.NotificationSettings
 import com.ltsw.animo.data.model.Pet
 import com.ltsw.animo.ui.components.*
 
@@ -59,7 +59,13 @@ fun SettingsScreen() {
 
 @Composable
 fun ManagePetsContent() {
-    val pets = SampleData.pets
+    // TODO: Replace with database-backed pet data when Pet persistence is implemented
+    val pets = remember {
+        listOf(
+            Pet(1, "Max", "Golden Retriever"),
+            Pet(2, "Luna", "Siberian Husky")
+        )
+    }
     LazyColumn(
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -98,17 +104,18 @@ fun PetItem(pet: Pet, onEdit: () -> Unit, onDelete: () -> Unit) {
 
 @Composable
 fun NotificationsContent() {
-    val settings by SampleData.notificationSettings
+    // TODO: Replace with database-backed notification settings when persistence is implemented
+    var settings by remember { mutableStateOf(NotificationSettings(true, true, false)) }
     Column(modifier = Modifier.padding(16.dp)) {
         SettingsGroup(title = "Reminders") {
             SettingsToggleItem(title = "Appointment Reminders", icon = Icons.Outlined.CalendarToday, checked = settings.appointments) {
-                SampleData.notificationSettings.value = settings.copy(appointments = it)
+                settings = settings.copy(appointments = it)
             }
             SettingsToggleItem(title = "Medication Reminders", icon = Icons.Outlined.MedicalServices, checked = settings.medications) {
-                SampleData.notificationSettings.value = settings.copy(medications = it)
+                settings = settings.copy(medications = it)
             }
             SettingsToggleItem(title = "Daily Summary", icon = Icons.Outlined.Summarize, checked = settings.summary) {
-                SampleData.notificationSettings.value = settings.copy(summary = it)
+                settings = settings.copy(summary = it)
             }
         }
     }
