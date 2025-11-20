@@ -8,6 +8,11 @@ class ActivityRepository(private val activityDao: ActivityDao) {
     // Get all activities from the DAO's Flow. The UI will collect this.
     val allActivities: Flow<List<Activity>> = activityDao.getAllActivities()
 
+    // Get activities for a specific pet
+    fun getActivitiesByPetId(petId: Long): Flow<List<Activity>> {
+        return activityDao.getActivitiesByPetId(petId)
+    }
+
     // Use a suspend function to insert data without blocking the main thread.
     suspend fun insert(activity: Activity) {
         activityDao.insertActivity(activity)

@@ -116,6 +116,8 @@ private fun SummaryCard(icon: ImageVector, label: String, value: String, color: 
 
 @Composable
 private fun QuickLogButtons(viewModel: ActivityViewModel) {
+    val selectedPetId by viewModel.selectedPetId.collectAsState()
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -126,12 +128,15 @@ private fun QuickLogButtons(viewModel: ActivityViewModel) {
             color = Color.Green,
             modifier = Modifier.weight(1f),
             onClick = {
-                val activity = Activity(
-                    type = ActivityType.WALK,
-                    title = "Quick Walk",
-                    dateTime = LocalDateTime.now()
-                )
-                viewModel.insert(activity)
+                selectedPetId?.let { petId ->
+                    val activity = Activity(
+                        petId = petId,
+                        type = ActivityType.WALK,
+                        title = "Quick Walk",
+                        dateTime = LocalDateTime.now()
+                    )
+                    viewModel.insert(activity)
+                }
             }
         )
         QuickLogButton(
@@ -140,12 +145,15 @@ private fun QuickLogButtons(viewModel: ActivityViewModel) {
             color = Color(0xFFFFA500),
             modifier = Modifier.weight(1f),
             onClick = {
-                val activity = Activity(
-                    type = ActivityType.MEAL,
-                    title = "Meal",
-                    dateTime = LocalDateTime.now()
-                )
-                viewModel.insert(activity)
+                selectedPetId?.let { petId ->
+                    val activity = Activity(
+                        petId = petId,
+                        type = ActivityType.MEAL,
+                        title = "Meal",
+                        dateTime = LocalDateTime.now()
+                    )
+                    viewModel.insert(activity)
+                }
             }
         )
         QuickLogButton(
@@ -154,12 +162,15 @@ private fun QuickLogButtons(viewModel: ActivityViewModel) {
             color = Color.Red,
             modifier = Modifier.weight(1f),
             onClick = {
-                val activity = Activity(
-                    type = ActivityType.MEDICATION,
-                    title = "Medication",
-                    dateTime = LocalDateTime.now()
-                )
-                viewModel.insert(activity)
+                selectedPetId?.let { petId ->
+                    val activity = Activity(
+                        petId = petId,
+                        type = ActivityType.MEDICATION,
+                        title = "Medication",
+                        dateTime = LocalDateTime.now()
+                    )
+                    viewModel.insert(activity)
+                }
             }
         )
     }

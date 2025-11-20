@@ -12,6 +12,9 @@ interface ActivityDao {
     @Query("SELECT * FROM activities ORDER BY dateTime ASC")
     fun getAllActivities(): Flow<List<Activity>>
 
+    @Query("SELECT * FROM activities WHERE petId = :petId ORDER BY dateTime ASC")
+    fun getActivitiesByPetId(petId: Long): Flow<List<Activity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertActivity(activity: Activity)
 

@@ -29,6 +29,7 @@ data class Pet(
 data class Activity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val petId: Long, // Foreign key to associate activity with a pet
     val type: ActivityType,
     var title: String,
     var dateTime: LocalDateTime
