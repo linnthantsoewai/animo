@@ -35,11 +35,14 @@ fun SettingsScreen() {
     val context = LocalContext.current
     val application = context.applicationContext as AnimoApplication
     val notificationSettingsDao = application.database.notificationSettingsDao()
+    val themePreferences = application.themePreferences
 
     var showNotifications by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
     var showPrivacyPolicy by remember { mutableStateOf(false) }
-    var isDarkMode by remember { mutableStateOf(false) }
+
+    // Load dark mode preference from DataStore
+    val isDarkMode by themePreferences.isDarkMode.collectAsState(initial = false)
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -82,21 +85,20 @@ fun SettingsScreen() {
                         }
                         showNotifications = true
                     }
-                        SettingsToggleItem(
-                            title = "Dark Mode",
-                            icon = Icons.Filled.DarkMode,
-                            checked = isDarkMode,
-                            onCheckedChange = {
-                                isDarkMode = it
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Dark mode ${if (it) "enabled" else "disabled"} (Feature coming soon)",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                                // TODO: Implement actual theme switching with DataStore
+                    SettingsToggleItem(
+                        title = "Dark Mode",
+                        icon = Icons.Filled.DarkMode,
+                        checked = isDarkMode,
+                        onCheckedChange = { enabled ->
+                            scope.launch {
+                                themePreferences.setDarkMode(enabled)
+                                snackbarHostState.showSnackbar(
+                                    message = "Dark mode ${if (enabled) "enabled" else "disabled"}",
+                                    duration = SnackbarDuration.Short
+                                )
                             }
-                        )
+                        }
+                    )
                     }
                 }
 
