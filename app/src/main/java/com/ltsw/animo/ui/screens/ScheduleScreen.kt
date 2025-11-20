@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,39 +19,113 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
 import com.ltsw.animo.ui.viewmodel.ActivityViewModel
+import com.ltsw.animo.ui.viewmodel.PetViewModel
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ScheduleScreen(viewModel: ActivityViewModel) {
+fun ScheduleScreen(viewModel: ActivityViewModel, petViewModel: PetViewModel) {
     val activities by viewModel.allActivities.collectAsState()
+    val allPets by petViewModel.allPets.collectAsState()
+    val selectedPet by petViewModel.selectedPet.collectAsState()
+
     val sortedActivities = activities.sortedBy { it.dateTime }
     val groupedActivities = sortedActivities.groupBy { it.dateTime.toLocalDate() }
 
-    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         TopHeader("Schedule")
-        LazyColumn(
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            groupedActivities.forEach { (date, activitiesOnDate) ->
-                item {
+
+        // Show empty state if no pets are registered
+        if (allPets.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Pets,
+                        contentDescription = null,
+                        modifier = Modifier.size(80.dp),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                    )
                     Text(
-                        date.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")),
+                        text = "No Pets Registered Yet",
+                        style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Go to the Profile page to add your first pet and start managing their schedule!",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
                     )
                 }
-                items(activitiesOnDate) { activity ->
-                    ActivityCard(
-                        activity = activity,
-                        onDelete = { viewModel.deleteById(activity.id) }
+            }
+        } else if (activities.isEmpty()) {
+            // Show empty state for no activities
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.CalendarToday,
+                        contentDescription = null,
+                        modifier = Modifier.size(80.dp),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
                     )
+                    Text(
+                        text = "No Activities Scheduled",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Tap the + button to add your first activity for ${selectedPet?.name ?: "your pet"}!",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                groupedActivities.forEach { (date, activitiesOnDate) ->
+                    item {
+                        Text(
+                            date.format(DateTimeFormatter.ofPattern("MMMM d, yyyy")),
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    }
+                    items(activitiesOnDate) { activity ->
+                        ActivityCard(
+                            activity = activity,
+                            onDelete = { viewModel.deleteById(activity.id) }
+                        )
+                    }
                 }
             }
         }
@@ -77,7 +152,7 @@ private fun ActivityCard(activity: Activity, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier.padding(16.dp),

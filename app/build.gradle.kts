@@ -70,6 +70,9 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
+    // DataStore for preferences
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+
     // --- FIX: Use the version catalog alias ---
     coreLibraryDesugaring(libs.desugarJdkLibs)
 

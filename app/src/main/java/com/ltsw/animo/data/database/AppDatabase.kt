@@ -8,18 +8,20 @@ import androidx.room.TypeConverters
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.NotificationSettings
 import com.ltsw.animo.data.model.Pet
+import com.ltsw.animo.data.model.User
 
 /**
  * The Room database for this app.
  * Defines the database configuration and serves as the main access point
  * for the underlying connection to your app's persisted data.
  */
-@Database(entities = [Activity::class, Pet::class, NotificationSettings::class], version = 4, exportSchema = false)
+@Database(entities = [Activity::class, Pet::class, NotificationSettings::class, User::class], version = 5, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
     abstract fun petDao(): PetDao
     abstract fun notificationSettingsDao(): NotificationSettingsDao
+    abstract fun userDao(): UserDao
 
     companion object {
         @Volatile

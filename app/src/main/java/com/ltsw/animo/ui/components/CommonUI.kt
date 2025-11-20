@@ -61,13 +61,22 @@ fun FullScreenSettingPage(title: String, onClose: () -> Unit, content: @Composab
 @Composable
 fun SettingsGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column {
-        Text(title.uppercase(), color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        Text(
+            title.uppercase(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
         Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            content()
+            Column {
+                content()
+            }
         }
     }
 }
@@ -98,9 +107,29 @@ fun SettingsToggleItem(title: String, icon: ImageVector, checked: Boolean, onChe
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(icon, contentDescription = title, tint = Color.Gray)
+        Icon(
+            icon,
+            contentDescription = title,
+            tint = if (checked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Spacer(modifier = Modifier.width(16.dp))
-        Text(title, modifier = Modifier.weight(1f))
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Text(
+            title,
+            modifier = Modifier.weight(1f),
+            color = if (checked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            style = MaterialTheme.typography.bodyLarge
+        )
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.primary,
+                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                uncheckedThumbColor = Color.White,
+                uncheckedTrackColor = Color(0xFFDADCE0), // Light gray with good contrast
+                uncheckedBorderColor = Color(0xFF5F6368), // Darker border for visibility
+                checkedBorderColor = MaterialTheme.colorScheme.primary,
+            )
+        )
     }
 }

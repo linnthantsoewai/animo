@@ -23,11 +23,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ltsw.animo.AnimoApplication
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
 import com.ltsw.animo.ui.viewmodel.ActivityViewModel
+import com.ltsw.animo.ui.viewmodel.PetViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -35,7 +38,17 @@ import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DashboardScreen(viewModel: ActivityViewModel) {
+fun DashboardScreen(viewModel: ActivityViewModel, petViewModel: PetViewModel) {
+    val context = LocalContext.current
+    val application = context.applicationContext as AnimoApplication
+    val userRepository = application.userRepository
+
+    // Get logged-in user
+    val loggedInUser by userRepository.loggedInUser.collectAsState(initial = null)
+
+    // Get selected pet
+    val selectedPet by petViewModel.selectedPet.collectAsState()
+
     val activities by viewModel.allActivities.collectAsState()
     val today = LocalDateTime.now().toLocalDate()
     val todayActivities = activities.filter { it.dateTime.toLocalDate() == today }
@@ -52,14 +65,18 @@ fun DashboardScreen(viewModel: ActivityViewModel) {
     val walksToday = todayActivities.count { it.type == ActivityType.WALK }
     val mealsToday = todayActivities.count { it.type == ActivityType.MEAL }
 
+    // Create greeting message
+    val userName = loggedInUser?.name ?: "User"
+    val petName = selectedPet?.name ?: "your pet"
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        item { Header("Good morning, Alex", "For Max 🐾") }
+        item { Header("Good morning, $userName", "For $petName 🐾") }
 
         // Show sliding carousel only if there are upcoming activities
         if (upcomingImportantActivities.isNotEmpty()) {
@@ -237,8 +254,8 @@ private fun SummaryGrid(walksToday: Int, mealsToday: Int) {
 private fun SummaryCard(icon: ImageVector, label: String, value: String, color: Color, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(24.dp))
@@ -316,7 +333,7 @@ private fun QuickLogButton(label: String, icon: ImageVector, color: Color, modif
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.background)
+            .background(MaterialTheme.colorScheme.surface)
             .clickable { onClick() }
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
