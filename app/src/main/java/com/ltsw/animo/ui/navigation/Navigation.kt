@@ -34,6 +34,8 @@ import com.ltsw.animo.ui.screens.ScheduleScreen
 import com.ltsw.animo.ui.screens.SettingsScreen
 import com.ltsw.animo.ui.viewmodel.ActivityViewModel
 import com.ltsw.animo.ui.viewmodel.ActivityViewModelFactory
+import com.ltsw.animo.ui.viewmodel.PetViewModel
+import com.ltsw.animo.ui.viewmodel.PetViewModelFactory
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -56,7 +58,10 @@ fun AnimoApp() {
     val context = LocalContext.current
     val application = context.applicationContext as AnimoApplication
     val viewModel: ActivityViewModel = viewModel(
-        factory = ActivityViewModelFactory(application.repository)
+        factory = ActivityViewModelFactory(application.activityRepository)
+    )
+    val petViewModel: PetViewModel = viewModel(
+        factory = PetViewModelFactory(application.petRepository)
     )
 
     val navController = rememberNavController()
@@ -77,7 +82,7 @@ fun AnimoApp() {
         ) {
             composable(Screen.Dashboard.route) { DashboardScreen(viewModel) }
             composable(Screen.Schedule.route) { ScheduleScreen(viewModel) }
-            composable(Screen.Profile.route) { ProfileScreen() }
+            composable(Screen.Profile.route) { ProfileScreen(petViewModel) }
             composable(Screen.Settings.route) { SettingsScreen() }
         }
     }

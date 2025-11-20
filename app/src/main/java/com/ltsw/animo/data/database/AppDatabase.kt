@@ -6,16 +6,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.ltsw.animo.data.model.Activity
+import com.ltsw.animo.data.model.Pet
 
 /**
  * The Room database for this app.
  * Defines the database configuration and serves as the main access point
  * for the underlying connection to your app's persisted data.
  */
-@Database(entities = [Activity::class], version = 1, exportSchema = false)
+@Database(entities = [Activity::class, Pet::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
+    abstract fun petDao(): PetDao
 
     companion object {
         @Volatile
@@ -31,7 +33,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "animo_database"
                 )
                     .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
-                    .fallbackToDestructiveMigrationOnDowngrade()
+                    .fallbackToDestructiveMigration() // Allow destructive migration for schema changes
                     .build()
                 INSTANCE = instance
                 instance
