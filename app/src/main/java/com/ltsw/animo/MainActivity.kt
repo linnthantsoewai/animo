@@ -3,11 +3,23 @@ package com.ltsw.animo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.ltsw.animo.ui.navigation.AnimoApp
 import com.ltsw.animo.ui.screens.LoginScreen
 import com.ltsw.animo.ui.theme.AnimoTheme
+import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,19 +28,57 @@ class MainActivity : ComponentActivity() {
             val application = applicationContext as AnimoApplication
             val isDarkMode by application.themePreferences.isDarkMode.collectAsState(initial = false)
 
-            // Check if user is logged in
+            // State to track if we're checking authentication
+            var isCheckingAuth by remember { mutableStateOf(true) }
+            var isLoggedIn by remember { mutableStateOf(false) }
+
+            // Check authentication status once on startup
+            LaunchedEffect(Unit) {
+                val user = application.userRepository.getLoggedInUserOnce()
+                isLoggedIn = user != null
+                // Small delay to ensure smooth transition
+                delay(100)
+                isCheckingAuth = false
+            }
+
+            // After initial check, observe for changes (for logout functionality)
             val loggedInUser by application.userRepository.loggedInUser.collectAsState(initial = null)
 
+            // Update logged in state when user logs out
+            LaunchedEffect(loggedInUser) {
+                if (!isCheckingAuth) {
+                    isLoggedIn = loggedInUser != null
+                }
+            }
+
             AnimoTheme(darkTheme = isDarkMode) {
-                if (loggedInUser == null) {
-                    // Show login screen if no user is logged in
-                    LoginScreen(onLoginSuccess = {
-                        // User logged in, the state will update automatically
-                        // and the main app will be displayed
-                    })
-                } else {
-                    // User is logged in, show main app
-                    AnimoApp()
+                when {
+                    isCheckingAuth -> {
+                        // Show loading screen while checking authentication
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colorScheme.background),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Pets,
+                                contentDescription = "Animo Logo",
+                                modifier = Modifier.size(80.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                    !isLoggedIn -> {
+                        // Show login screen if no user is logged in
+                        LoginScreen(onLoginSuccess = {
+                            isLoggedIn = true
+                        })
+                    }
+                    else -> {
+                        // User is logged in, show main app
+                        AnimoApp()
+                    }
                 }
             }
         }
