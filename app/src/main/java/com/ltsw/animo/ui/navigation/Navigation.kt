@@ -1,7 +1,6 @@
 package com.ltsw.animo.ui.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -64,6 +62,12 @@ fun AnimoApp() {
         factory = PetViewModelFactory(application.petRepository)
     )
 
+    // Sync selected pet from PetViewModel to ActivityViewModel
+    val selectedPet by petViewModel.selectedPet.collectAsState()
+    LaunchedEffect(selectedPet) {
+        viewModel.setSelectedPet(selectedPet?.id)
+    }
+
     val navController = rememberNavController()
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
@@ -88,13 +92,29 @@ fun AnimoApp() {
     }
 
     if (showDialog) {
-        AddActivityDialog(
-            onDismiss = { showDialog = false },
-            onSave = { newActivity ->
-                viewModel.insert(newActivity)
-                showDialog = false
-            }
-        )
+        // Only show dialog if a pet is selected
+        selectedPet?.let { pet ->
+            AddActivityDialog(
+                petId = pet.id,
+                onDismiss = { showDialog = false },
+                onSave = { newActivity ->
+                    viewModel.insert(newActivity)
+                    showDialog = false
+                }
+            )
+        } ?: run {
+            // Show a message to select a pet first
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text("No Pet Selected") },
+                text = { Text("Please add and select a pet from the Profile page before adding activities.") },
+                confirmButton = {
+                    TextButton(onClick = { showDialog = false }) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -199,7 +219,7 @@ fun BottomNavigationBar(navController: NavController, onAddClick: () -> Unit) {
 // --- Add Activity Dialog ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit) {
+private fun AddActivityDialog(petId: Long, onDismiss: () -> Unit, onSave: (Activity) -> Unit) {
     var title by rememberSaveable { mutableStateOf("") }
     var activityType by rememberSaveable { mutableStateOf(ActivityType.WALK) }
     var isDropdownExpanded by rememberSaveable { mutableStateOf(false) }
@@ -233,7 +253,7 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
 
                 ExposedDropdownMenuBox(
                     expanded = isDropdownExpanded,
-                    onExpandedChange = { isDropdownExpanded = !isDropdownExpanded }
+                    onExpandedChange = { isDropdownExpanded = it }
                 ) {
                     OutlinedTextField(
                         value = activityType.name.replaceFirstChar { it.uppercase() },
@@ -241,7 +261,9 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
                         readOnly = true,
                         label = { Text("Activity Type") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded) },
-                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                        modifier = Modifier
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
+                            .fillMaxWidth()
                     )
                     ExposedDropdownMenu(
                         expanded = isDropdownExpanded,
@@ -296,6 +318,7 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
                     Button(onClick = {
                         val newActivity = Activity(
                             id = 0,  // Let Room auto-generate the ID
+                            petId = petId,  // Associate with current pet
                             type = activityType,
                             title = title,
                             dateTime = LocalDateTime.of(selectedDate, selectedTime)
@@ -319,8 +342,8 @@ private fun AddActivityDialog(onDismiss: () -> Unit, onSave: (Activity) -> Unit)
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let {
                         selectedDate = Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+                        showDatePicker = false
                     }
-                    showDatePicker = false
                 }) { Text("OK") }
             },
             dismissButton = {

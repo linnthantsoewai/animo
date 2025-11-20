@@ -13,7 +13,7 @@ import com.ltsw.animo.data.model.Pet
  * Defines the database configuration and serves as the main access point
  * for the underlying connection to your app's persisted data.
  */
-@Database(entities = [Activity::class, Pet::class], version = 2, exportSchema = false)
+@Database(entities = [Activity::class, Pet::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun activityDao(): ActivityDao
