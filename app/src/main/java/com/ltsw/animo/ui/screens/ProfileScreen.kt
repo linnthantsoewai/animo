@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -587,25 +588,34 @@ fun AddEditPetDialog(
     var notes by remember { mutableStateOf(pet?.notes ?: "") }
     var expanded by remember { mutableStateOf(false) }
 
+    // Scroll state to track scrollbar
+    val scrollState = rememberLazyListState()
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 600.dp),
-            shape = RoundedCornerShape(16.dp)
+                .heightIn(max = 500.dp), // Limit height to make it practical
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         ) {
-            LazyColumn(
-                modifier = Modifier.padding(24.dp)
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    state = scrollState,
+                    modifier = Modifier
+                        .padding(24.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
                 item {
                     Text(
                         text = if (pet == null) "Add New Pet" else "Edit ${pet.name}",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                }
 
-                    // Required Fields
+                // Required Fields
+                item {
                     OutlinedTextField(
                         value = name,
                         onValueChange = { name = it },
@@ -613,8 +623,9 @@ fun AddEditPetDialog(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
+                item {
                     OutlinedTextField(
                         value = breed,
                         onValueChange = { breed = it },
@@ -622,9 +633,10 @@ fun AddEditPetDialog(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
-                    // Basic Info
+                // Basic Info Row
+                item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -651,9 +663,10 @@ fun AddEditPetDialog(
                             singleLine = true
                         )
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
-                    // Sex Dropdown
+                // Sex Dropdown
+                item {
                     ExposedDropdownMenuBox(
                         expanded = expanded,
                         onExpandedChange = { expanded = !expanded }
@@ -666,7 +679,7 @@ fun AddEditPetDialog(
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .menuAnchor(),
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                             singleLine = true
                         )
                         ExposedDropdownMenu(
@@ -684,8 +697,9 @@ fun AddEditPetDialog(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
+                item {
                     OutlinedTextField(
                         value = color,
                         onValueChange = { color = it },
@@ -693,9 +707,10 @@ fun AddEditPetDialog(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
-                    // Medical Info
+                // Medical Info
+                item {
                     OutlinedTextField(
                         value = microchipId,
                         onValueChange = { microchipId = it },
@@ -703,8 +718,9 @@ fun AddEditPetDialog(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
+                item {
                     OutlinedTextField(
                         value = allergies,
                         onValueChange = { allergies = it },
@@ -712,17 +728,19 @@ fun AddEditPetDialog(
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("e.g., Chicken, Wheat") }
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
+                item {
                     OutlinedTextField(
                         value = medications,
                         onValueChange = { medications = it },
                         label = { Text("Current Medications") },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
-                    // Vet Info
+                // Vet Info
+                item {
                     OutlinedTextField(
                         value = vetName,
                         onValueChange = { vetName = it },
@@ -730,8 +748,9 @@ fun AddEditPetDialog(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
+                item {
                     OutlinedTextField(
                         value = vetPhone,
                         onValueChange = { vetPhone = it },
@@ -740,8 +759,9 @@ fun AddEditPetDialog(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         singleLine = true
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
+                item {
                     OutlinedTextField(
                         value = notes,
                         onValueChange = { notes = it },
@@ -751,19 +771,18 @@ fun AddEditPetDialog(
                             .height(100.dp),
                         maxLines = 4
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
+                }
 
-                    // Buttons
+                // Buttons
+                item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.End
                     ) {
-                        OutlinedButton(
-                            onClick = onDismiss,
-                            modifier = Modifier.weight(1f)
-                        ) {
+                        TextButton(onClick = onDismiss) {
                             Text("Cancel")
                         }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Button(
                             onClick = {
                                 if (name.isNotBlank() && breed.isNotBlank()) {
@@ -785,13 +804,13 @@ fun AddEditPetDialog(
                                     onSave(newPet)
                                 }
                             },
-                            modifier = Modifier.weight(1f),
                             enabled = name.isNotBlank() && breed.isNotBlank()
                         ) {
                             Text(if (pet == null) "Add" else "Save")
                         }
                     }
                 }
+            }
             }
         }
     }
