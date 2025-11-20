@@ -41,7 +41,6 @@ fun SettingsScreen() {
     var showNotifications by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
     var showPrivacyPolicy by remember { mutableStateOf(false) }
-    var showLoginDialog by remember { mutableStateOf(false) }
 
     // Load dark mode preference from DataStore
     val isDarkMode by themePreferences.isDarkMode.collectAsState(initial = false)
@@ -79,17 +78,17 @@ fun SettingsScreen() {
                 // User section
                 item {
                     SettingsGroup(title = "User") {
-                        if (loggedInUser != null) {
-                            // Logged in - show user info and logout
+                        // Always show user info since users must be logged in to access the app
+                        loggedInUser?.let { user ->
                             Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                                 Text(
-                                    text = loggedInUser!!.name,
+                                    text = user.name,
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = loggedInUser!!.email,
+                                    text = user.email,
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -105,14 +104,6 @@ fun SettingsScreen() {
                                 ) {
                                     Text("Logout")
                                 }
-                            }
-                        } else {
-                            // Not logged in - show login button
-                            SettingsItem(
-                                title = "Login / Register",
-                                icon = Icons.Filled.AccountCircle
-                            ) {
-                                showLoginDialog = true
                             }
                         }
                     }
@@ -277,24 +268,6 @@ fun SettingsScreen() {
         ) {
             PrivacyPolicyContent()
         }
-    }
-
-    // Login Dialog
-    if (showLoginDialog) {
-        LoginDialog(
-            onDismiss = { showLoginDialog = false },
-            onLogin = { name, email ->
-                scope.launch {
-                    try {
-                        userRepository.registerUser(name, email)
-                        showLoginDialog = false
-                        snackbarHostState.showSnackbar("Welcome, $name!")
-                    } catch (e: Exception) {
-                        snackbarHostState.showSnackbar("Error: ${e.message}")
-                    }
-                }
-            }
-        )
     }
 }
 
@@ -625,95 +598,3 @@ fun PolicySection(title: String, content: String) {
     }
 }
 
-@Composable
-fun LoginDialog(
-    onDismiss: () -> Unit,
-    onLogin: (name: String, email: String) -> Unit
-) {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var nameError by remember { mutableStateOf(false) }
-    var emailError by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "Welcome to Animo",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "Enter your details to get started",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = {
-                        name = it
-                        nameError = false
-                    },
-                    label = { Text("Name") },
-                    placeholder = { Text("Enter your name") },
-                    isError = nameError,
-                    supportingText = if (nameError) {
-                        { Text("Name is required") }
-                    } else null,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = {
-                        email = it
-                        emailError = false
-                    },
-                    label = { Text("Email") },
-                    placeholder = { Text("Enter your email") },
-                    isError = emailError,
-                    supportingText = if (emailError) {
-                        { Text("Valid email is required") }
-                    } else null,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = {
-                    var hasError = false
-
-                    if (name.isBlank()) {
-                        nameError = true
-                        hasError = true
-                    }
-
-                    if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                        emailError = true
-                        hasError = true
-                    }
-
-                    if (!hasError) {
-                        onLogin(name.trim(), email.trim())
-                    }
-                }
-            ) {
-                Text("Continue")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}
