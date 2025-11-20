@@ -1,14 +1,20 @@
 package com.ltsw.animo.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Restaurant
+import androidx.compose.material.icons.outlined.Vaccines
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,13 +28,26 @@ import androidx.compose.ui.unit.sp
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
 import com.ltsw.animo.ui.viewmodel.ActivityViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DashboardScreen(viewModel: ActivityViewModel) {
     val activities by viewModel.allActivities.collectAsState()
     val today = LocalDateTime.now().toLocalDate()
     val todayActivities = activities.filter { it.dateTime.toLocalDate() == today }
+
+    // Filter upcoming important activities (appointments, vaccinations, medications)
+    val now = LocalDateTime.now()
+    val upcomingImportantActivities = activities.filter {
+        it.dateTime.isAfter(now) &&
+        (it.type == ActivityType.APPOINTMENT ||
+         it.type == ActivityType.VACCINATION ||
+         it.type == ActivityType.MEDICATION)
+    }.sortedBy { it.dateTime }.take(5) // Show max 5 upcoming activities
 
     val walksToday = todayActivities.count { it.type == ActivityType.WALK }
     val mealsToday = todayActivities.count { it.type == ActivityType.MEAL }
@@ -41,7 +60,12 @@ fun DashboardScreen(viewModel: ActivityViewModel) {
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item { Header("Good morning, Alex", "For Max 🐾") }
-        item { NextAppointmentCard() }
+
+        // Show sliding carousel only if there are upcoming activities
+        if (upcomingImportantActivities.isNotEmpty()) {
+            item { UpcomingActivitiesCarousel(upcomingImportantActivities) }
+        }
+
         item {
             Text("Today's Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(8.dp))
@@ -55,35 +79,146 @@ fun DashboardScreen(viewModel: ActivityViewModel) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun Header(subtitle: String, title: String) {
-    Column {
-        Text(subtitle, color = Color.Gray)
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+private fun UpcomingActivitiesCarousel(activities: List<Activity>) {
+    val pagerState = rememberPagerState(pageCount = { activities.size })
+    val coroutineScope = rememberCoroutineScope()
+
+    // Auto-slide effect
+    LaunchedEffect(pagerState.currentPage) {
+        if (activities.size > 1) {
+            delay(5000) // Wait 5 seconds
+            val nextPage = (pagerState.currentPage + 1) % activities.size
+            coroutineScope.launch {
+                pagerState.animateScrollToPage(nextPage)
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxWidth()
+        ) { page ->
+            ActivityCard(activities[page])
+        }
+
+        // Page indicators
+        if (activities.size > 1) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                repeat(activities.size) { index ->
+                    val isSelected = pagerState.currentPage == index
+                    Box(
+                        modifier = Modifier
+                            .size(if (isSelected) 10.dp else 8.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (isSelected) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                            )
+                            .clickable {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            }
+                    )
+                    if (index < activities.size - 1) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun NextAppointmentCard() {
+private fun ActivityCard(activity: Activity) {
+    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd")
+    val timeFormatter = DateTimeFormatter.ofPattern("h:mm a")
+
+    val (cardColor, icon, label) = when (activity.type) {
+        ActivityType.APPOINTMENT -> Triple(
+            MaterialTheme.colorScheme.primary,
+            Icons.Outlined.CalendarToday,
+            "Next Appointment"
+        )
+        ActivityType.VACCINATION -> Triple(
+            Color(0xFF9C27B0), // Purple
+            Icons.Outlined.Vaccines,
+            "Upcoming Vaccination"
+        )
+        ActivityType.MEDICATION -> Triple(
+            Color(0xFFE91E63), // Pink/Red
+            Icons.Outlined.MedicalServices,
+            "Medication Reminder"
+        )
+        else -> Triple(
+            MaterialTheme.colorScheme.primary,
+            Icons.Outlined.CalendarToday,
+            "Upcoming Activity"
+        )
+    }
+
     Card(
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+        colors = CardDefaults.cardColors(containerColor = cardColor),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text("Next Appointment", color = Color.White, fontWeight = FontWeight.Bold)
-                Text("Annual Check-up", color = Color.White.copy(alpha = 0.8f))
-                Text("Dr. Reynolds", color = Color.White.copy(alpha = 0.8f))
+                Text(
+                    label,
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium
+                )
+                Text(
+                    activity.title,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp
+                )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("Oct 25", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
-                Text("10:00 AM", color = Color.White)
+                Text(
+                    activity.dateTime.format(dateFormatter),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                )
+                Text(
+                    activity.dateTime.format(timeFormatter),
+                    color = Color.White.copy(alpha = 0.9f),
+                    fontSize = 14.sp
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun Header(subtitle: String, title: String) {
+    Column {
+        Text(subtitle, color = Color.Gray)
+        Text(title, fontWeight = FontWeight.Bold, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
     }
 }
 
