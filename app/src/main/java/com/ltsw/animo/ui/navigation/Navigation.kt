@@ -26,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.ltsw.animo.AnimoApplication
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
+import com.ltsw.animo.notifications.NotificationHelper
 import com.ltsw.animo.ui.screens.DashboardScreen
 import com.ltsw.animo.ui.screens.ProfileScreen
 import com.ltsw.animo.ui.screens.ScheduleScreen
@@ -99,6 +100,17 @@ fun AnimoApp() {
                 onDismiss = { showDialog = false },
                 onSave = { newActivity ->
                     viewModel.insert(newActivity)
+
+                    // Schedule notification if it's an appointment, vaccination, or medication
+                    if (newActivity.type in listOf(
+                            ActivityType.APPOINTMENT,
+                            ActivityType.VACCINATION,
+                            ActivityType.MEDICATION
+                        )
+                    ) {
+                        NotificationHelper.scheduleActivityNotification(context, newActivity)
+                    }
+
                     showDialog = false
                 }
             )

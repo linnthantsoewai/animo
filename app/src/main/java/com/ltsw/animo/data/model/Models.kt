@@ -41,7 +41,10 @@ enum class ActivityType {
 }
 
 // Defines the structure for notification preferences
+@Entity(tableName = "notification_settings")
 data class NotificationSettings(
+    @PrimaryKey
+    val id: Int = 1, // Only one settings record
     var appointments: Boolean,
     var medications: Boolean,
     var summary: Boolean

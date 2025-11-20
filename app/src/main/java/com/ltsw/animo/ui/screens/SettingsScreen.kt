@@ -1,6 +1,10 @@
 package com.ltsw.animo.ui.screens
 
+import android.Manifest
 import android.content.Intent
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,12 +24,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import com.ltsw.animo.AnimoApplication
 import com.ltsw.animo.data.model.NotificationSettings
+import com.ltsw.animo.notifications.NotificationHelper
 import com.ltsw.animo.ui.components.*
 import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen() {
+    val context = LocalContext.current
+    val application = context.applicationContext as AnimoApplication
+    val notificationSettingsDao = application.database.notificationSettingsDao()
+
     var showNotifications by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
     var showPrivacyPolicy by remember { mutableStateOf(false) }
@@ -34,13 +44,21 @@ fun SettingsScreen() {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Notification settings state
-    var notificationSettings by remember {
-        mutableStateOf(NotificationSettings(
-            appointments = true,
-            medications = true,
-            summary = false
-        ))
+    // Load notification settings from database
+    val notificationSettings by notificationSettingsDao.getSettings()
+        .collectAsState(initial = NotificationSettings(appointments = true, medications = true, summary = false))
+
+    // Permission launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        scope.launch {
+            if (isGranted) {
+                snackbarHostState.showSnackbar("Notification permission granted")
+            } else {
+                snackbarHostState.showSnackbar("Notification permission denied")
+            }
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -50,14 +68,20 @@ fun SettingsScreen() {
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                item {
-                    SettingsGroup(title = "Preferences") {
-                        SettingsItem(
-                            title = "Notifications",
-                            icon = Icons.Filled.Notifications
-                        ) {
-                            showNotifications = true
+            item {
+                SettingsGroup(title = "Preferences") {
+                    SettingsItem(
+                        title = "Notifications",
+                        icon = Icons.Filled.Notifications
+                    ) {
+                        // Check permission first
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (!NotificationHelper.hasNotificationPermission(context)) {
+                                permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
                         }
+                        showNotifications = true
+                    }
                         SettingsToggleItem(
                             title = "Dark Mode",
                             icon = Icons.Filled.DarkMode,
@@ -173,8 +197,15 @@ fun SettingsScreen() {
             onClose = { showNotifications = false }
         ) {
             NotificationsContent(
-                settings = notificationSettings,
-                onSettingsChange = { notificationSettings = it }
+                settings = notificationSettings ?: NotificationSettings(appointments = true, medications = true, summary = false),
+                onSettingsChange = { newSettings ->
+                    scope.launch {
+                        notificationSettingsDao.insertSettings(newSettings)
+
+                        // Schedule or cancel daily summary
+                        NotificationHelper.scheduleDailySummary(context, newSettings.summary)
+                    }
+                }
             )
         }
     }
@@ -205,8 +236,10 @@ fun NotificationsContent(
     settings: NotificationSettings,
     onSettingsChange: (NotificationSettings) -> Unit
 ) {
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val hasPermission = NotificationHelper.hasNotificationPermission(context)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -221,20 +254,48 @@ fun NotificationsContent(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-        SettingsGroup(title = "Reminders") {
-            SettingsToggleItem(
-                title = "Appointment Reminders",
-                icon = Icons.Outlined.CalendarToday,
-                checked = settings.appointments
-            ) {
-                onSettingsChange(settings.copy(appointments = it))
-                scope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = if (it) "Appointment reminders enabled" else "Appointment reminders disabled",
-                        duration = SnackbarDuration.Short
+            // Permission status card
+            if (!hasPermission && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
                     )
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Filled.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "Notification permission not granted. Please enable notifications in app settings.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
                 }
             }
+
+            SettingsGroup(title = "Reminders") {
+                SettingsToggleItem(
+                    title = "Appointment Reminders",
+                    icon = Icons.Outlined.CalendarToday,
+                    checked = settings.appointments
+                ) {
+                    onSettingsChange(settings.copy(appointments = it))
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = if (it) "Appointment reminders enabled" else "Appointment reminders disabled",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 SettingsToggleItem(
                     title = "Medication Reminders",
@@ -258,7 +319,7 @@ fun NotificationsContent(
                     onSettingsChange(settings.copy(summary = it))
                     scope.launch {
                         snackbarHostState.showSnackbar(
-                            message = if (it) "Daily summary enabled" else "Daily summary disabled",
+                            message = if (it) "Daily summary enabled (8 PM)" else "Daily summary disabled",
                             duration = SnackbarDuration.Short
                         )
                     }
@@ -282,11 +343,20 @@ fun NotificationsContent(
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Notifications help you stay on top of your pet's care schedule",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    Column {
+                        Text(
+                            text = "How notifications work",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "• Appointments & Medications: 1 hour before scheduled time\n• Daily Summary: Every day at 8 PM",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
             }
         }
