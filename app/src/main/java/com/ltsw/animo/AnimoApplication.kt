@@ -3,6 +3,7 @@ package com.ltsw.animo
 import android.app.Application
 import com.ltsw.animo.data.ActivityRepository
 import com.ltsw.animo.data.PetRepository
+import com.ltsw.animo.data.UserRepository
 import com.ltsw.animo.data.database.AppDatabase
 import com.ltsw.animo.data.preferences.ThemePreferences
 import com.ltsw.animo.notifications.NotificationHelper
@@ -13,6 +14,7 @@ class AnimoApplication : Application() {
     val database by lazy { AppDatabase.getDatabase(this) }
     val activityRepository by lazy { ActivityRepository(database.activityDao()) }
     val petRepository by lazy { PetRepository(database.petDao()) }
+    val userRepository by lazy { UserRepository(database.userDao()) }
     val themePreferences by lazy { ThemePreferences(this) }
 
     override fun onCreate() {

@@ -85,8 +85,8 @@ fun AnimoApp() {
             startDestination = Screen.Dashboard.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Dashboard.route) { DashboardScreen(viewModel) }
-            composable(Screen.Schedule.route) { ScheduleScreen(viewModel) }
+            composable(Screen.Dashboard.route) { DashboardScreen(viewModel, petViewModel) }
+            composable(Screen.Schedule.route) { ScheduleScreen(viewModel, petViewModel) }
             composable(Screen.Profile.route) { ProfileScreen(petViewModel) }
             composable(Screen.Settings.route) { SettingsScreen() }
         }

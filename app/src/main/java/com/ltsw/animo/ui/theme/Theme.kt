@@ -38,16 +38,16 @@ private val LightColorScheme = lightColorScheme(
     errorContainer = Color(0xFFFDE7E9),
     onErrorContainer = Color(0xFF410002),
 
-    background = Color(0xFFFAFAFA), // Very light gray
+    background = Color(0xFFF5F5F5), // Light gray background for contrast
     onBackground = Color(0xFF202124), // Almost black
 
-    surface = Color.White,
+    surface = Color.White, // Pure white cards
     onSurface = Color(0xFF202124),
 
-    surfaceVariant = Color(0xFFF1F3F4), // Light gray surface
+    surfaceVariant = Color(0xFFF5F5F5), // Light gray variant
     onSurfaceVariant = Color(0xFF5F6368),
 
-    outline = Color(0xFFDADCE0), // Subtle borders
+    outline = Color(0xFFDADCE0), // Visible borders
     outlineVariant = Color(0xFFE8EAED),
 
     inverseSurface = Color(0xFF2E3134),

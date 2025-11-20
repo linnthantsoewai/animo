@@ -61,13 +61,22 @@ fun FullScreenSettingPage(title: String, onClose: () -> Unit, content: @Composab
 @Composable
 fun SettingsGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
     Column {
-        Text(title.uppercase(), color = Color.Gray, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+        Text(
+            title.uppercase(),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
         Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.background)
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            content()
+            Column {
+                content()
+            }
         }
     }
 }

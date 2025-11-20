@@ -49,3 +49,15 @@ data class NotificationSettings(
     var medications: Boolean,
     var summary: Boolean
 )
+
+// Defines the structure for user profile
+@Entity(tableName = "users")
+data class User(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    val name: String,
+    val email: String,
+    val createdAt: Long = System.currentTimeMillis(),
+    val isLoggedIn: Boolean = false
+)
+
