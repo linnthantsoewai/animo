@@ -38,11 +38,14 @@ fun ProfileScreen(viewModel: PetViewModel) {
     var petToEdit by remember { mutableStateOf<Pet?>(null) }
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
+        // Title Header
+        TopHeader("Pet Profile")
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -50,7 +53,7 @@ fun ProfileScreen(viewModel: PetViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 // Pet Selector Row
                 if (allPets.isNotEmpty()) {
@@ -828,3 +831,21 @@ private fun ProfileStat(label: String, value: String) {
         Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
     }
 }
+
+@Composable
+private fun TopHeader(title: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = title,
+            fontWeight = FontWeight.Bold,
+            fontSize = 32.sp,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+}
+
