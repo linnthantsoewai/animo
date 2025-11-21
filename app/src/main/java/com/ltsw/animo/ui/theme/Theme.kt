@@ -58,7 +58,7 @@ private val LightColorScheme = lightColorScheme(
     scrim = Color(0xFF000000),
 )
 
-// Dark theme - Industry standard like Google apps (Gmail, Drive, YouTube dark mode)
+// Dark theme
 private val DarkColorScheme = darkColorScheme(
     primary = Color(0xFF8AB4F8), // Lighter blue for dark mode
     onPrimary = Color(0xFF0A2E5C),
@@ -80,33 +80,33 @@ private val DarkColorScheme = darkColorScheme(
     errorContainer = Color(0xFFD93025),
     onErrorContainer = Color(0xFFFDE7E9),
 
-    background = Color(0xFF202124), // Google dark background
+    background = Color(0xFF000000), // Pitch black for true OLED dark mode
     onBackground = Color(0xFFE8EAED), // Light gray text
 
-    surface = Color(0xFF292A2D), // Elevated surface
+    surface = Color(0xFF1A1A1A), // Very dark gray for elevated surfaces
     onSurface = Color(0xFFE8EAED),
 
-    surfaceVariant = Color(0xFF3C4043), // Darker variant
+    surfaceVariant = Color(0xFF2A2A2A), // Slightly lighter for variants
     onSurfaceVariant = Color(0xFFBDC1C6),
 
     outline = Color(0xFF5F6368), // Subtle borders in dark
     outlineVariant = Color(0xFF3C4043),
 
     inverseSurface = Color(0xFFE8EAED),
-    inverseOnSurface = Color(0xFF202124),
+    inverseOnSurface = Color(0xFF000000),
     inversePrimary = Color(0xFF1967D2),
 
     surfaceTint = Color(0xFF8AB4F8),
     scrim = Color(0xFF000000),
 
-    // Surface brightness levels for elevation
-    surfaceBright = Color(0xFF3A3B3E),
-    surfaceDim = Color(0xFF202124),
-    surfaceContainer = Color(0xFF292A2D),
-    surfaceContainerHigh = Color(0xFF33363A),
-    surfaceContainerHighest = Color(0xFF3E4145),
-    surfaceContainerLow = Color(0xFF25272A),
-    surfaceContainerLowest = Color(0xFF1A1C1E),
+    // Surface brightness levels for elevation - all very dark for OLED
+    surfaceBright = Color(0xFF2A2A2A),
+    surfaceDim = Color(0xFF0A0A0A),
+    surfaceContainer = Color(0xFF1A1A1A),
+    surfaceContainerHigh = Color(0xFF252525),
+    surfaceContainerHighest = Color(0xFF303030),
+    surfaceContainerLow = Color(0xFF121212),
+    surfaceContainerLowest = Color(0xFF000000),
 )
 
 @Composable

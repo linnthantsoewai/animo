@@ -192,7 +192,7 @@ fun BottomNavigationBar(navController: NavController, onAddClick: () -> Unit) {
                     Icon(
                         Icons.Filled.Add,
                         contentDescription = "Add Activity",
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(28.dp)
                     )
                 }
