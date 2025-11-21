@@ -23,6 +23,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import com.ltsw.animo.AnimoApplication
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
@@ -83,7 +85,11 @@ fun AnimoApp() {
         NavHost(
             navController = navController,
             startDestination = Screen.Dashboard.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { EnterTransition.None },
+            exitTransition = { ExitTransition.None },
+            popEnterTransition = { EnterTransition.None },
+            popExitTransition = { ExitTransition.None }
         ) {
             composable(Screen.Dashboard.route) { DashboardScreen(viewModel, petViewModel) }
             composable(Screen.Schedule.route) { ScheduleScreen(viewModel, petViewModel) }
