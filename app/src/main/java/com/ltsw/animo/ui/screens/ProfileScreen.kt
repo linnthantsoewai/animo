@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.ltsw.animo.data.model.Pet
 import com.ltsw.animo.ui.viewmodel.PetViewModel
+import com.ltsw.animo.ui.components.TopHeader
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +45,7 @@ fun ProfileScreen(viewModel: PetViewModel) {
             .background(MaterialTheme.colorScheme.background)
     ) {
         // Title Header
-        TopHeader("Pet Profile")
+        TopHeader("Profile")
 
         LazyColumn(
             modifier = Modifier
@@ -832,20 +833,5 @@ private fun ProfileStat(label: String, value: String) {
     }
 }
 
-@Composable
-private fun TopHeader(title: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
-    ) {
-        Text(
-            text = title,
-            fontWeight = FontWeight.Bold,
-            fontSize = 32.sp,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-    }
-}
+
 

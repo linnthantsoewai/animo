@@ -26,6 +26,7 @@ import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
 import com.ltsw.animo.ui.viewmodel.ActivityViewModel
 import com.ltsw.animo.ui.viewmodel.PetViewModel
+import com.ltsw.animo.ui.components.TopHeader
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -132,17 +133,7 @@ fun ScheduleScreen(viewModel: ActivityViewModel, petViewModel: PetViewModel) {
     }
 }
 
-@Composable
-private fun TopHeader(title: String) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
-    ) {
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
-    }
-}
+
 
 @Composable
 private fun ActivityCard(activity: Activity, onDelete: () -> Unit) {

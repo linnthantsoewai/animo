@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation("androidx.graphics:graphics-shapes:1.0.0-alpha05")
 
     // Navigation
     implementation(libs.androidx.navigation.compose)

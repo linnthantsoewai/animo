@@ -128,6 +128,7 @@ fun SettingsScreen(
                         }
                         showNotifications = true
                     }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsToggleItem(
                         title = "Dark Mode",
                         icon = Icons.Filled.DarkMode,
@@ -144,6 +145,7 @@ fun SettingsScreen(
                     )
                     // Dynamic Color (Material You) - Only for Android 12+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         SettingsToggleItem(
                             title = "Dynamic Color",
                             icon = Icons.Filled.Palette,
@@ -159,7 +161,7 @@ fun SettingsScreen(
                             }
                         )
                     }
-                    }
+                }
                 }
 
             item {
@@ -170,12 +172,14 @@ fun SettingsScreen(
                     ) {
                         showAbout = true
                     }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsItem(
                         title = "Privacy Policy",
                         icon = Icons.Filled.Shield
                     ) {
                         showPrivacyPolicy = true
                     }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     val context = LocalContext.current
                     SettingsItem(
                         title = "Rate Us",
@@ -215,6 +219,7 @@ fun SettingsScreen(
                             // Silently fail if no browser available
                         }
                     }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsItem(
                         title = "Contact Us",
                         icon = Icons.Filled.Email

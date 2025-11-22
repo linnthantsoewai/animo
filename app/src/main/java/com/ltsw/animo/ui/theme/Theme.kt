@@ -16,97 +16,84 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Light theme - Clean and modern like Google apps
+// Light theme - Vibrant Expressive
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF1967D2), // Google Blue
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFD2E3FC), // Light blue container
-    onPrimaryContainer = Color(0xFF041E49),
-
-    secondary = Color(0xFF5F6368), // Google Gray
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFE8EAED),
-    onSecondaryContainer = Color(0xFF1A1C1E),
-
-    tertiary = Color(0xFF0B8043), // Google Green
-    onTertiary = Color.White,
-    tertiaryContainer = Color(0xFFC2F0D1),
-    onTertiaryContainer = Color(0xFF002109),
-
-    error = Color(0xFFD93025), // Google Red
-    onError = Color.White,
-    errorContainer = Color(0xFFFDE7E9),
-    onErrorContainer = Color(0xFF410002),
-
-    background = Color(0xFFF5F5F5), // Light gray background for contrast
-    onBackground = Color(0xFF202124), // Almost black
-
-    surface = Color.White, // Pure white cards
-    onSurface = Color(0xFF202124),
-
-    surfaceVariant = Color.White, // White containers for "card on canvas" look
-    onSurfaceVariant = Color(0xFF444746),
-
-    outline = Color(0xFF747775), // Stronger outline for better visibility
-    outlineVariant = Color(0xFFE8EAED),
-
-    inverseSurface = Color(0xFF2E3134),
-    inverseOnSurface = Color(0xFFF1F3F4),
-    inversePrimary = Color(0xFF8AB4F8),
-
-    surfaceTint = Color(0xFF1967D2),
-    scrim = Color(0xFF000000),
+    primary = md_theme_light_primary,
+    onPrimary = md_theme_light_onPrimary,
+    primaryContainer = md_theme_light_primaryContainer,
+    onPrimaryContainer = md_theme_light_onPrimaryContainer,
+    secondary = md_theme_light_secondary,
+    onSecondary = md_theme_light_onSecondary,
+    secondaryContainer = md_theme_light_secondaryContainer,
+    onSecondaryContainer = md_theme_light_onSecondaryContainer,
+    tertiary = md_theme_light_tertiary,
+    onTertiary = md_theme_light_onTertiary,
+    tertiaryContainer = md_theme_light_tertiaryContainer,
+    onTertiaryContainer = md_theme_light_onTertiaryContainer,
+    error = md_theme_light_error,
+    errorContainer = md_theme_light_errorContainer,
+    onError = md_theme_light_onError,
+    onErrorContainer = md_theme_light_onErrorContainer,
+    background = md_theme_light_background,
+    onBackground = md_theme_light_onBackground,
+    surface = md_theme_light_surface,
+    onSurface = md_theme_light_onSurface,
+    surfaceVariant = md_theme_light_surfaceVariant,
+    onSurfaceVariant = md_theme_light_onSurfaceVariant,
+    outline = md_theme_light_outline,
+    inverseOnSurface = md_theme_light_inverseOnSurface,
+    inverseSurface = md_theme_light_inverseSurface,
+    inversePrimary = md_theme_light_inversePrimary,
+    surfaceTint = md_theme_light_primary,
+    outlineVariant = md_theme_light_surfaceVariant,
+    scrim = md_theme_light_outline,
+    
+    // Surface Containers
+    surfaceContainerLowest = md_theme_light_surfaceContainerLowest,
+    surfaceContainerLow = md_theme_light_surfaceContainerLow,
+    surfaceContainer = md_theme_light_surfaceContainer,
+    surfaceContainerHigh = md_theme_light_surfaceContainerHigh,
+    surfaceContainerHighest = md_theme_light_surfaceContainerHighest,
 )
 
-// Dark theme
+// Dark theme - Vibrant Expressive
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFF8AB4F8), // Lighter blue for dark mode
-    onPrimary = Color(0xFF0A2E5C),
-    primaryContainer = Color(0xFF0B57D0), // Deeper blue
-    onPrimaryContainer = Color(0xFFD2E3FC),
+    primary = md_theme_dark_primary,
+    onPrimary = md_theme_dark_onPrimary,
+    primaryContainer = md_theme_dark_primaryContainer,
+    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
+    secondary = md_theme_dark_secondary,
+    onSecondary = md_theme_dark_onSecondary,
+    secondaryContainer = md_theme_dark_secondaryContainer,
+    onSecondaryContainer = md_theme_dark_onSecondaryContainer,
+    tertiary = md_theme_dark_tertiary,
+    onTertiary = md_theme_dark_onTertiary,
+    tertiaryContainer = md_theme_dark_tertiaryContainer,
+    onTertiaryContainer = md_theme_dark_onTertiaryContainer,
+    error = md_theme_dark_error,
+    errorContainer = md_theme_dark_errorContainer,
+    onError = md_theme_dark_onError,
+    onErrorContainer = md_theme_dark_onErrorContainer,
+    background = md_theme_dark_background,
+    onBackground = md_theme_dark_onBackground,
+    surface = md_theme_dark_surface,
+    onSurface = md_theme_dark_onSurface,
+    surfaceVariant = md_theme_dark_surfaceVariant,
+    onSurfaceVariant = md_theme_dark_onSurfaceVariant,
+    outline = md_theme_dark_outline,
+    inverseOnSurface = md_theme_dark_inverseOnSurface,
+    inverseSurface = md_theme_dark_inverseSurface,
+    inversePrimary = md_theme_dark_inversePrimary,
+    surfaceTint = md_theme_dark_primary,
+    outlineVariant = md_theme_dark_surfaceVariant,
+    scrim = md_theme_dark_outline,
 
-    secondary = Color(0xFFBDC1C6), // Light gray for text
-    onSecondary = Color(0xFF2E3134),
-    secondaryContainer = Color(0xFF3C4043), // Gray containers
-    onSecondaryContainer = Color(0xFFE8EAED),
-
-    tertiary = Color(0xFF81C995), // Light green
-    onTertiary = Color(0xFF003919),
-    tertiaryContainer = Color(0xFF0B8043),
-    onTertiaryContainer = Color(0xFFC2F0D1),
-
-    error = Color(0xFFF28B82), // Light red
-    onError = Color(0xFF601410),
-    errorContainer = Color(0xFFD93025),
-    onErrorContainer = Color(0xFFFDE7E9),
-
-    background = Color(0xFF000000), // Pitch black for true OLED dark mode
-    onBackground = Color(0xFFE8EAED), // Light gray text
-
-    surface = Color(0xFF1A1A1A), // Very dark gray for elevated surfaces
-    onSurface = Color(0xFFE8EAED),
-
-    surfaceVariant = Color(0xFF2A2A2A), // Slightly lighter for variants
-    onSurfaceVariant = Color(0xFFBDC1C6),
-
-    outline = Color(0xFF5F6368), // Subtle borders in dark
-    outlineVariant = Color(0xFF3C4043),
-
-    inverseSurface = Color(0xFFE8EAED),
-    inverseOnSurface = Color(0xFF000000),
-    inversePrimary = Color(0xFF1967D2),
-
-    surfaceTint = Color(0xFF8AB4F8),
-    scrim = Color(0xFF000000),
-
-    // Surface brightness levels for elevation - all very dark for OLED
-    surfaceBright = Color(0xFF2A2A2A),
-    surfaceDim = Color(0xFF0A0A0A),
-    surfaceContainer = Color(0xFF1A1A1A),
-    surfaceContainerHigh = Color(0xFF252525),
-    surfaceContainerHighest = Color(0xFF303030),
-    surfaceContainerLow = Color(0xFF121212),
-    surfaceContainerLowest = Color(0xFF000000),
+    // Surface Containers
+    surfaceContainerLowest = md_theme_dark_surfaceContainerLowest,
+    surfaceContainerLow = md_theme_dark_surfaceContainerLow,
+    surfaceContainer = md_theme_dark_surfaceContainer,
+    surfaceContainerHigh = md_theme_dark_surfaceContainerHigh,
+    surfaceContainerHighest = md_theme_dark_surfaceContainerHighest,
 )
 
 @Composable
