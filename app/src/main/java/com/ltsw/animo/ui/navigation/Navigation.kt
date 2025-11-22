@@ -148,7 +148,8 @@ fun BottomNavigationBar(navController: NavController, onAddClick: () -> Unit) {
     val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        modifier = Modifier.height(120.dp)
     ) {
         // First two items
         items.take(2).forEach { screen ->
