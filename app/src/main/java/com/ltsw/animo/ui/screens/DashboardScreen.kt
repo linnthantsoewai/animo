@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.MedicalServices
@@ -31,6 +31,7 @@ import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
 import com.ltsw.animo.ui.viewmodel.ActivityViewModel
 import com.ltsw.animo.ui.viewmodel.PetViewModel
+import com.ltsw.animo.ui.theme.ActivityColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -168,12 +169,12 @@ private fun ActivityCard(activity: Activity) {
             "Next Appointment"
         )
         ActivityType.VACCINATION -> Triple(
-            Color(0xFF9C27B0), // Purple
+            ActivityColors.Vaccination,
             Icons.Outlined.Vaccines,
             "Upcoming Vaccination"
         )
         ActivityType.MEDICATION -> Triple(
-            Color(0xFFE91E63), // Pink/Red
+            ActivityColors.Medication,
             Icons.Outlined.MedicalServices,
             "Medication Reminder"
         )
@@ -184,9 +185,9 @@ private fun ActivityCard(activity: Activity) {
         )
     }
 
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = cardColor),
+    ElevatedCard(
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.elevatedCardColors(containerColor = cardColor),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -254,8 +255,8 @@ private fun SummaryGrid(walksToday: Int, mealsToday: Int) {
 private fun SummaryCard(icon: ImageVector, label: String, value: String, color: Color, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(24.dp))
@@ -332,8 +333,8 @@ private fun QuickLogButtons(viewModel: ActivityViewModel) {
 private fun QuickLogButton(label: String, icon: ImageVector, color: Color, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surface)
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable { onClick() }
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally

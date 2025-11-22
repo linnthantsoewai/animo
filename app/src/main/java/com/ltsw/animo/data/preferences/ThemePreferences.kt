@@ -16,6 +16,7 @@ class ThemePreferences(private val context: Context) {
 
     companion object {
         private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode")
+        private val DYNAMIC_COLOR_KEY = booleanPreferencesKey("dynamic_color")
     }
 
     /**
@@ -27,11 +28,28 @@ class ThemePreferences(private val context: Context) {
         }
 
     /**
+     * Get the current dynamic color setting as a Flow
+     */
+    val isDynamicColorEnabled: Flow<Boolean> = context.dataStore.data
+        .map { preferences ->
+            preferences[DYNAMIC_COLOR_KEY] ?: true // Default to enabled
+        }
+
+    /**
      * Save dark mode preference
      */
     suspend fun setDarkMode(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[DARK_MODE_KEY] = enabled
+        }
+    }
+
+    /**
+     * Save dynamic color preference
+     */
+    suspend fun setDynamicColorEnabled(enabled: Boolean) {
+        context.dataStore.edit { preferences ->
+            preferences[DYNAMIC_COLOR_KEY] = enabled
         }
     }
 }

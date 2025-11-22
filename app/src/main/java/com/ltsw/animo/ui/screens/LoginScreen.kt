@@ -45,161 +45,160 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(80.dp))
+
             // Logo/Icon
             Image(
                 painter = painterResource(id = R.drawable.ic_animo_logo),
                 contentDescription = "Animo Logo",
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.size(120.dp)
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // App Name
             Text(
                 text = "Animo",
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.displayMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
             // Tagline
             Text(
                 text = "Your Pet Care Companion",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(64.dp))
 
-            // Welcome Card
-            Card(
+            // Welcome Text
+            Text(
+                text = "Welcome back!",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.large,
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = "Welcome! 👋",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
+                textAlign = TextAlign.Start
+            )
+            
+            Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        text = "Create your account to get started with managing your pet's health and activities.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+            Text(
+                text = "Please sign in to continue.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start
+            )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-                    // Name Field
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = {
-                            name = it
-                            nameError = false
-                        },
-                        label = { Text("Your Name") },
-                        placeholder = { Text("Enter your name") },
-                        leadingIcon = {
-                            Icon(Icons.Filled.Person, contentDescription = "Name")
-                        },
-                        isError = nameError,
-                        supportingText = if (nameError) {
-                            { Text("Name is required") }
-                        } else null,
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading
-                    )
+            // Name Field
+            OutlinedTextField(
+                value = name,
+                onValueChange = {
+                    name = it
+                    nameError = false
+                },
+                label = { Text("Your Name") },
+                placeholder = { Text("Enter your name") },
+                leadingIcon = {
+                    Icon(Icons.Filled.Person, contentDescription = "Name")
+                },
+                isError = nameError,
+                supportingText = if (nameError) {
+                    { Text("Name is required") }
+                } else null,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
+                shape = MaterialTheme.shapes.medium
+            )
 
-                    // Email Field
-                    OutlinedTextField(
-                        value = email,
-                        onValueChange = {
-                            email = it
-                            emailError = false
-                        },
-                        label = { Text("Email Address") },
-                        placeholder = { Text("Enter your email") },
-                        leadingIcon = {
-                            Icon(Icons.Filled.Email, contentDescription = "Email")
-                        },
-                        isError = emailError,
-                        supportingText = if (emailError) {
-                            { Text("Valid email is required") }
-                        } else null,
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !isLoading
-                    )
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    Spacer(modifier = Modifier.height(8.dp))
+            // Email Field
+            OutlinedTextField(
+                value = email,
+                onValueChange = {
+                    email = it
+                    emailError = false
+                },
+                label = { Text("Email Address") },
+                placeholder = { Text("Enter your email") },
+                leadingIcon = {
+                    Icon(Icons.Filled.Email, contentDescription = "Email")
+                },
+                isError = emailError,
+                supportingText = if (emailError) {
+                    { Text("Valid email is required") }
+                } else null,
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
+                shape = MaterialTheme.shapes.medium
+            )
 
-                    // Create Account Button
-                    Button(
-                        onClick = {
-                            var hasError = false
+            Spacer(modifier = Modifier.height(32.dp))
 
-                            if (name.isBlank()) {
-                                nameError = true
-                                hasError = true
+            // Create Account Button
+            Button(
+                onClick = {
+                    var hasError = false
+
+                    if (name.isBlank()) {
+                        nameError = true
+                        hasError = true
+                    }
+
+                    if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                        emailError = true
+                        hasError = true
+                    }
+
+                    if (!hasError) {
+                        isLoading = true
+                        scope.launch {
+                            try {
+                                userRepository.registerUser(name.trim(), email.trim())
+                                onLoginSuccess()
+                            } catch (e: Exception) {
+                                isLoading = false
+                                snackbarHostState.showSnackbar(
+                                    message = "Error: ${e.message}",
+                                    duration = SnackbarDuration.Short
+                                )
                             }
-
-                            if (email.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                                emailError = true
-                                hasError = true
-                            }
-
-                            if (!hasError) {
-                                isLoading = true
-                                scope.launch {
-                                    try {
-                                        userRepository.registerUser(name.trim(), email.trim())
-                                        onLoginSuccess()
-                                    } catch (e: Exception) {
-                                        isLoading = false
-                                        snackbarHostState.showSnackbar(
-                                            message = "Error: ${e.message}",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    }
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(56.dp),
-                        enabled = !isLoading
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        } else {
-                            Text(
-                                text = "Create Account",
-                                style = MaterialTheme.typography.titleMedium
-                            )
                         }
                     }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = !isLoading,
+                shape = MaterialTheme.shapes.large
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text(
+                        text = "Get Started",
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(32.dp))
 
             // Privacy Note
             Text(
@@ -208,6 +207,8 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
 
         // Snackbar

@@ -44,6 +44,7 @@ fun SettingsScreen() {
 
     // Load dark mode preference from DataStore
     val isDarkMode by themePreferences.isDarkMode.collectAsState(initial = false)
+    val isDynamicColorEnabled by themePreferences.isDynamicColorEnabled.collectAsState(initial = true)
 
     // Load logged-in user
     val loggedInUser by userRepository.loggedInUser.collectAsState(initial = null)
@@ -137,6 +138,23 @@ fun SettingsScreen() {
                             }
                         }
                     )
+                    // Dynamic Color (Material You) - Only for Android 12+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        SettingsToggleItem(
+                            title = "Dynamic Color",
+                            icon = Icons.Filled.Palette,
+                            checked = isDynamicColorEnabled,
+                            onCheckedChange = { enabled ->
+                                scope.launch {
+                                    themePreferences.setDynamicColorEnabled(enabled)
+                                    snackbarHostState.showSnackbar(
+                                        message = "Dynamic color ${if (enabled) "enabled" else "disabled"}",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                            }
+                        )
+                    }
                     }
                 }
 

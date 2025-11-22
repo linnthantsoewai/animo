@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val application = applicationContext as AnimoApplication
             val isDarkMode by application.themePreferences.isDarkMode.collectAsState(initial = false)
+            val isDynamicColorEnabled by application.themePreferences.isDynamicColorEnabled.collectAsState(initial = true)
 
             // State to track if we're checking authentication
             var isCheckingAuth by remember { mutableStateOf(true) }
@@ -49,7 +50,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            AnimoTheme(darkTheme = isDarkMode) {
+            AnimoTheme(
+                darkTheme = isDarkMode,
+                dynamicColor = isDynamicColorEnabled
+            ) {
                 when {
                     isCheckingAuth -> {
                         // Show loading screen while checking authentication

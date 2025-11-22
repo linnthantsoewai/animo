@@ -44,10 +44,10 @@ private val LightColorScheme = lightColorScheme(
     surface = Color.White, // Pure white cards
     onSurface = Color(0xFF202124),
 
-    surfaceVariant = Color(0xFFF5F5F5), // Light gray variant
-    onSurfaceVariant = Color(0xFF5F6368),
+    surfaceVariant = Color.White, // White containers for "card on canvas" look
+    onSurfaceVariant = Color(0xFF444746),
 
-    outline = Color(0xFFDADCE0), // Visible borders
+    outline = Color(0xFF747775), // Stronger outline for better visibility
     outlineVariant = Color(0xFFE8EAED),
 
     inverseSurface = Color(0xFF2E3134),
@@ -119,7 +119,20 @@ fun AnimoTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) {
+                val scheme = dynamicDarkColorScheme(context)
+                scheme.copy(
+                    outline = Color(0xFF938F99) // Light gray for visibility against dark surfaces
+                )
+            } else {
+                // For dynamic light mode, we want the container to be lighter than the background
+                val scheme = dynamicLightColorScheme(context)
+                scheme.copy(
+                    background = scheme.surfaceContainer, // Slightly tinted/darker background
+                    surfaceVariant = scheme.surface, // White/Lightest containers
+                    surface = scheme.surface // Ensure main surface is also light
+                )
+            }
         }
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
@@ -143,4 +156,10 @@ fun AnimoTheme(
         typography = Typography,
         content = content
     )
+}
+
+// Extended colors for specific activity types
+object ActivityColors {
+    val Vaccination = Color(0xFF9C27B0) // Purple
+    val Medication = Color(0xFFE91E63) // Pink/Red
 }
