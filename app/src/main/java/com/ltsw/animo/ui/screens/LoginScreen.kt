@@ -1,5 +1,6 @@
 package com.ltsw.animo.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -35,6 +36,9 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // State for toggle between Login and Signup
+    var isLoginMode by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -79,7 +83,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
             // Welcome Text
             Text(
-                text = "Welcome back!",
+                text = if (isLoginMode) "Welcome back!" else "Create Account",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
@@ -90,7 +94,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Please sign in to continue.",
+                text = if (isLoginMode) "Sign in to continue." else "Sign up to get started.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth(),
@@ -99,29 +103,32 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Name Field
-            OutlinedTextField(
-                value = name,
-                onValueChange = {
-                    name = it
-                    nameError = false
-                },
-                label = { Text("Your Name") },
-                placeholder = { Text("Enter your name") },
-                leadingIcon = {
-                    Icon(Icons.Filled.Person, contentDescription = "Name")
-                },
-                isError = nameError,
-                supportingText = if (nameError) {
-                    { Text("Name is required") }
-                } else null,
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading,
-                shape = MaterialTheme.shapes.medium
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
+            // Name Field (Only in Signup Mode)
+            AnimatedVisibility(visible = !isLoginMode) {
+                Column {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = {
+                            name = it
+                            nameError = false
+                        },
+                        label = { Text("Your Name") },
+                        placeholder = { Text("Enter your name") },
+                        leadingIcon = {
+                            Icon(Icons.Filled.Person, contentDescription = "Name")
+                        },
+                        isError = nameError,
+                        supportingText = if (nameError) {
+                            { Text("Name is required") }
+                        } else null,
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !isLoading,
+                        shape = MaterialTheme.shapes.medium
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
 
             // Email Field
             OutlinedTextField(
@@ -147,12 +154,12 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Create Account Button
+            // Action Button
             Button(
                 onClick = {
                     var hasError = false
 
-                    if (name.isBlank()) {
+                    if (!isLoginMode && name.isBlank()) {
                         nameError = true
                         hasError = true
                     }
@@ -166,8 +173,23 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                         isLoading = true
                         scope.launch {
                             try {
-                                userRepository.registerUser(name.trim(), email.trim())
-                                onLoginSuccess()
+                                if (isLoginMode) {
+                                    // Login Logic
+                                    val success = userRepository.loginUser(email.trim())
+                                    if (success) {
+                                        onLoginSuccess()
+                                    } else {
+                                        isLoading = false
+                                        snackbarHostState.showSnackbar(
+                                            message = "Account not found. Please sign up.",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    }
+                                } else {
+                                    // Signup Logic
+                                    userRepository.registerUser(name.trim(), email.trim())
+                                    onLoginSuccess()
+                                }
                             } catch (e: Exception) {
                                 isLoading = false
                                 snackbarHostState.showSnackbar(
@@ -191,10 +213,29 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                     )
                 } else {
                     Text(
-                        text = "Get Started",
+                        text = if (isLoginMode) "Sign In" else "Create Account",
                         style = MaterialTheme.typography.titleMedium
                     )
                 }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Toggle Mode Button
+            TextButton(
+                onClick = { 
+                    isLoginMode = !isLoginMode 
+                    // Clear errors when switching
+                    nameError = false
+                    emailError = false
+                },
+                enabled = !isLoading
+            ) {
+                Text(
+                    text = if (isLoginMode) "Don't have an account? Sign Up" else "Already have an account? Sign In",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
 
             Spacer(modifier = Modifier.weight(1f))
