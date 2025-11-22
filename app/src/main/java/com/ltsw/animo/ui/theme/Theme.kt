@@ -154,6 +154,7 @@ fun AnimoTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = AnimoShapes,
         content = content
     )
 }

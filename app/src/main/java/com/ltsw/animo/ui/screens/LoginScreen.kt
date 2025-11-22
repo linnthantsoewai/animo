@@ -204,7 +204,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                     .fillMaxWidth()
                     .height(56.dp),
                 enabled = !isLoading,
-                shape = MaterialTheme.shapes.large
+                shape = MaterialTheme.shapes.small
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(

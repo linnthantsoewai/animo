@@ -28,7 +28,7 @@ fun TopHeader(title: String) {
             .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
     ) {
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 32.sp)
+        Text(title, style = MaterialTheme.typography.headlineLarge)
     }
 }
 

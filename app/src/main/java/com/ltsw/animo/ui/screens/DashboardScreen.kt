@@ -85,12 +85,12 @@ fun DashboardScreen(viewModel: ActivityViewModel, petViewModel: PetViewModel) {
         }
 
         item {
-            Text("Today's Summary", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text("Today's Summary", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(8.dp))
             SummaryGrid(walksToday, mealsToday)
         }
         item {
-            Text("Quick Log", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
+            Text("Quick Log", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
             Spacer(modifier = Modifier.height(8.dp))
             QuickLogButtons(viewModel)
         }
@@ -235,8 +235,8 @@ private fun ActivityCard(activity: Activity) {
 @Composable
 private fun Header(subtitle: String, title: String) {
     Column {
-        Text(subtitle, color = Color.Gray)
-        Text(title, fontWeight = FontWeight.Bold, fontSize = 32.sp, color = MaterialTheme.colorScheme.onBackground)
+        Text(subtitle, style = MaterialTheme.typography.titleMedium, color = Color.Gray)
+        Text(title, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onBackground)
     }
 }
 
