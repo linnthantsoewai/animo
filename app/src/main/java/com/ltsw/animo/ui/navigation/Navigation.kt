@@ -55,7 +55,10 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
 // --- Main App Composable ---
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AnimoApp() {
+fun AnimoApp(
+    isDarkMode: Boolean,
+    isDynamicColorEnabled: Boolean
+) {
     val context = LocalContext.current
     val application = context.applicationContext as AnimoApplication
     val viewModel: ActivityViewModel = viewModel(
@@ -94,7 +97,12 @@ fun AnimoApp() {
             composable(Screen.Dashboard.route) { DashboardScreen(viewModel, petViewModel) }
             composable(Screen.Schedule.route) { ScheduleScreen(viewModel, petViewModel) }
             composable(Screen.Profile.route) { ProfileScreen(petViewModel) }
-            composable(Screen.Settings.route) { SettingsScreen() }
+            composable(Screen.Settings.route) { 
+                SettingsScreen(
+                    isDarkMode = isDarkMode,
+                    isDynamicColorEnabled = isDynamicColorEnabled
+                ) 
+            }
         }
     }
 

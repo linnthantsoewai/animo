@@ -32,7 +32,10 @@ import com.ltsw.animo.ui.components.*
 import kotlinx.coroutines.launch
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    isDarkMode: Boolean,
+    isDynamicColorEnabled: Boolean
+) {
     val context = LocalContext.current
     val application = context.applicationContext as AnimoApplication
     val notificationSettingsDao = application.database.notificationSettingsDao()
@@ -42,10 +45,6 @@ fun SettingsScreen() {
     var showNotifications by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
     var showPrivacyPolicy by remember { mutableStateOf(false) }
-
-    // Load dark mode preference from DataStore
-    val isDarkMode by themePreferences.isDarkMode.collectAsState(initial = false)
-    val isDynamicColorEnabled by themePreferences.isDynamicColorEnabled.collectAsState(initial = true)
 
     // Load logged-in user
     val loggedInUser by userRepository.loggedInUser.collectAsState(initial = null)

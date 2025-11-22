@@ -78,7 +78,11 @@ class MainActivity : ComponentActivity() {
                     }
                     else -> {
                         // User is logged in, show main app
-                        AnimoApp()
+                        // User is logged in, show main app
+                        AnimoApp(
+                            isDarkMode = isDarkMode,
+                            isDynamicColorEnabled = isDynamicColorEnabled
+                        )
                     }
                 }
             }
