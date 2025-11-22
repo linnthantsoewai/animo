@@ -25,6 +25,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import com.ltsw.animo.AnimoApplication
 import com.ltsw.animo.data.model.Activity
 import com.ltsw.animo.data.model.ActivityType
@@ -89,10 +92,10 @@ fun AnimoApp(
             navController = navController,
             startDestination = Screen.Dashboard.route,
             modifier = Modifier.padding(innerPadding),
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None }
+            enterTransition = { fadeIn(animationSpec = snap()) },
+            exitTransition = { fadeOut(animationSpec = snap()) },
+            popEnterTransition = { fadeIn(animationSpec = snap()) },
+            popExitTransition = { fadeOut(animationSpec = snap()) }
         ) {
             composable(Screen.Dashboard.route) { DashboardScreen(viewModel, petViewModel) }
             composable(Screen.Schedule.route) { ScheduleScreen(viewModel, petViewModel) }
